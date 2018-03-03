@@ -3,8 +3,8 @@
 #include "windows.h"
 #include "graphics.h"
 
-#define X(n) (getmaxx()/2 + n)
-#define Y(n) (getmaxy()/2 - n)
+// #define X(n) (getmaxx()/2 + n)
+// #define Y(n) (getmaxy()/2 - n)
 
 typedef struct point
 {
@@ -14,6 +14,7 @@ typedef struct point
 
 void dda(Point , Point);
 void swap(Point &, Point &);
+int sign(const double &);
 
 int main()
 {
@@ -22,12 +23,12 @@ int main()
     scanf("%d%d", &start.x, &start.y);
     printf("Please enter the coordinates for the end point of the line.\n");
 	scanf("%d%d", &end.x, &end.y);
-	initwindow(1024, 768, "DDA");
-	line(getmaxx() / 2, 0, getmaxx() / 2, getmaxy());
-	line(0, getmaxy()/2, getmaxx(), getmaxy()/2);
+	initwindow(600, 600, "DDA");
+	// line(getmaxx() / 2, 0, getmaxx() / 2, getmaxy());
+	// line(0, getmaxy()/2, getmaxx(), getmaxy()/2);
 	setcolor(3);
-	circle(X(start.x), Y(start.y), 3);
-	circle(X(end.x), Y(end.y), 3);
+	circle(start.x, start.y, 3);
+	circle(end.x, end.y, 3);
 	setcolor(12);
     dda(start, end);
 	system("pause");
@@ -37,42 +38,43 @@ int main()
     
 void dda(Point start, Point end)
 {
-	int dy = end.y - start.y, dx = end.x - start.x;
+	int dy = end.y - start.y, dx = end.x - start.x, sgn = 0;
+	std::cout << dy << " " << dx << std::endl;
 	double slope = 0.0;
 	if (start.x > end.x)
 		swap(start, end);
 	if (dx == 0)
 		for (; start.y != end.y; ++start.y)
-			putpixel(X(start.x), Y(start.y), 12);
+			putpixel(start.x, start.y, 12);
 	else if (dy == 0)
 		for (; start.x != end.x; ++start.x)
-			putpixel(X(start.x), Y(start.y), 12);
+			putpixel(start.x, start.y, 12);
 	else
 	{
-		if (slope > 0 && slope <= 1) 
+		if (abs(dy) <= abs(dx)) // gentle slope
 		{
-			slope = dy / dx;
-			for (; start.x != end.x; ++start.x)
+			slope = dy /(double) dx;
+			sgn = sign(slope);
+			std::cout << "CASE 1 Slope : " << slope << " Sign : " << sgn << std::endl;
+			for (; start.x != end.x; start.x += sgn)
 			{
-				start.y += slope;
-				putpixel(X(start.x), Y(static_cast<int>(start.y)), 12);
+				start.y = static_cast<int>(start.y + slope);
+				putpixel(start.x, start.y, 12);
 			}
 		}
-		if (slope < 0 && slope >= -1)
-		{
-			slope = dy / dx;
-			for (; start.x != end.x; --start.x)
-			{
-				start.y += slope;
-				putpixel(X(start.x), Y(static_cast<int>(start.y)), 12);
-			}
-		}
-		/*else
-		{
-			slope = dx / dy;
 
-		}*/
-		// if(slope > 1 &&)
+		else // steep slope
+		{
+			slope = dx /(double) dy;
+			sgn = sign(slope);
+			std::cout << "CASE 2 Slope : " << slope << " Sign : " << sgn << std::endl;
+			for (; start.y != end.y; start.y += sgn)
+			{
+				start.x = static_cast<int>(start.x + slope);
+				putpixel(start.x, start.y, 12);
+			}
+		}
+
 	}
 } 
 
@@ -81,4 +83,14 @@ void swap(Point &a, Point &b)
 	Point tmp = a;
 	a = b;
 	b = tmp;
+}
+
+int sign(const double &val)
+{
+	if (val == 0)
+		return 0;
+	else if (val < 0)
+		return -1;
+	else
+		return 1;
 }
