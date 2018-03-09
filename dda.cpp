@@ -36,8 +36,7 @@ void dda(Point start, Point end)
 {
 	double slope = 0.0, x = 0.0, y = 0.0;
 	int dy = end.y - start.y, dx = end.x - start.x, sgn = 0;
-	std::cout << dy << " " << dx << std::endl;
-
+	
 	if (dx == 0)
 		for (y = start.y; y <= end.y; ++y)
 			putpixel((int)x, (int)y, 12);
