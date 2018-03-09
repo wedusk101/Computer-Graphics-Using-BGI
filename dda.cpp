@@ -1,8 +1,6 @@
 #include <iostream>
-#include <climits>
 #include "windows.h"
 #include "graphics.h"
-
 
 typedef struct point
 {
