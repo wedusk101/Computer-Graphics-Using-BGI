@@ -57,7 +57,7 @@ void dda(Point start, Point end)
 			
 			for (x = start.x, y = start.y; x <= end.x; x += sgn)
 			{
-				y = y + slope;
+				y += slope;
 				putpixel((int)x, (int)y, 12);
 			}
 		}
@@ -74,7 +74,7 @@ void dda(Point start, Point end)
 			
 			for (x = start.x, y = start.y; y <= end.y; y += sgn)
 			{
-				x = x + slope;
+				x += slope;
 				putpixel((int)x, (int)y, 12);
 			}
 		}
