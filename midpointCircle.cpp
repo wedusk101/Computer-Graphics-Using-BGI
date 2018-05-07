@@ -41,7 +41,7 @@ void midpointCircle(const Circle &circle)
 		{
 			plot.x += 1;
 			plot.y -= 1;
-			eps += 2 * plot.x - 2 * plot.y + 5;
+			eps += 2 * (plot.x - plot.y) + 5;
 		}
 		drawSymmetry(plot, circle);
 	}
