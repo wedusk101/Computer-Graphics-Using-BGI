@@ -65,19 +65,41 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bgiout.cxx" />
-    <ClCompile Include="dda.cpp" />
+    <ClCompile Include="bresenham.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="circle.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="dda.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="dibutil.cxx" />
     <ClCompile Include="drawing.cxx" />
     <ClCompile Include="file.cxx" />
+    <ClCompile Include="hello_world.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Mandelbrot.cpp" />
+    <ClCompile Include="midpointCircle.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="midpointClipping.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="misc.cxx" />
     <ClCompile Include="mouse.cxx" />
     <ClCompile Include="palette.cxx" />
     <ClCompile Include="main.cxx" />
+    <ClCompile Include="sutherland_WIP.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="text.cxx" />
     <ClCompile Include="winbgi.cxx" />
     <ClCompile Include="winthread.cxx" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="colors.h" />
     <ClInclude Include="dibutil.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="primitives.h" />
