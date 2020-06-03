@@ -24,6 +24,11 @@ The Mandelbrot set is what is known as a fractal pattern. It has repeating patte
 Benoit Mandelbrot. It is the most well-known fractal. Computing the Mandelbrot used to be a very compute intensive task to perform once. Nowadays, it can be trivially 
 computed by even processors in smart watches. 
 
+For fun, there is a simple multithreaded implementation provided here using OpenMP. The setcolor() and putpixel() functions are both thread safe (but involve expensive locks),
+which is why the calls to them are not in a "#pragma omp critical" section. The speedup achieved is ~1.25x which is nothing spectacular. This might have something to with
+the BGI library apart from the just the quality of the naive implementation here. Something more granular like using a thread pool with tiling may provide
+better performance.
+
 To know more about the Mandelbrot set please refer to https://en.wikipedia.org/wiki/Mandelbrot_set
 
 */
@@ -31,6 +36,8 @@ To know more about the Mandelbrot set please refer to https://en.wikipedia.org/w
 #include <iostream>
 #include <cmath>
 #include <chrono>
+#include <thread>
+#include <omp.h>
 #include "windows.h"
 #include "graphics.h"
 #include "colors.h"
@@ -62,6 +69,7 @@ struct Complex // class to support Complex numbers
 };
 
 void drawMandelbrot(const int &, const int &);
+void drawMandelbrotMT(const int &, const int &);
 double getMappedScaleX(const int &, const int &); // maps pixel values in the X direction of screen space between (-2.5, 1)
 double getMappedScaleY(const int &, const int &); // maps pixel values in the Y direction of screen space between (-1, 1)
 void evalMandel(Complex &, const Complex &);
@@ -69,11 +77,22 @@ void evalMandel(Complex &, const Complex &);
 int main()
 {
 	int width = 0, height = 0;
+	char ch = ' ';
 	printf("Please enter the desired resolution in pixels. Width, followed by height.\n");
 	scanf("%d%d", &width, &height);
+	printf("Enable multithreading? (Y/N)\n");
+	scanf(" %c", &ch);
 	initwindow(width, height, "Mandelbrot");
 	auto start = std::chrono::high_resolution_clock::now();
-	drawMandelbrot(width, height);
+	if (ch == 'y' || ch == 'Y')
+		drawMandelbrotMT(width, height);
+	else if ((ch == 'n' || ch == 'N'))
+		drawMandelbrot(width, height);
+	else
+	{
+		printf("Invalid choice! Aborting...\n");
+		exit(EXIT_FAILURE);
+	}
 	auto stop = std::chrono::high_resolution_clock::now();
 	auto diff = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
 	printf("Time taken is %d seconds.\n", diff.count());
@@ -103,7 +122,7 @@ void evalMandel(Complex &z, const Complex &c)
 
 void drawMandelbrot(const int &width, const int &height)
 {
-	int bound = 0;
+	int bound = 0;	
 	for (int y = 0; y < height; y++) // y axis of the image	
 	{
 		for (int x = 0; x < width; x++) // x axis of the image
@@ -126,6 +145,41 @@ void drawMandelbrot(const int &width, const int &height)
 			{
 				setcolor(CYAN);
 				putpixel(x, y, CYAN);
+			}
+		}
+	}
+}
+
+void drawMandelbrotMT(const int &width, const int &height)
+{
+	int bound = 0;
+	size_t nThreads = std::thread::hardware_concurrency();
+#pragma omp parallel num_threads(nThreads)
+	{
+#pragma omp for schedule(dynamic, 1)
+		for (int y = 0; y < height; y++) // y axis of the image	
+		{
+			for (int x = 0; x < width; x++) // x axis of the image
+			{
+				int itr = 0;
+				Complex z, c;
+				c.a = getMappedScaleX((double)x, width);
+				c.b = getMappedScaleY((double)y, height);
+				while (z.real() * z.real() + z.imaginary() * z.imaginary() <= 2 * 2 && itr < MAX_ITR)
+				{
+					evalMandel(z, c);
+					itr++;
+				}
+				if (itr < MAX_ITR)
+				{
+					setcolor(BLACK);
+					putpixel(x, y, BLACK);
+				}
+				else
+				{
+					setcolor(CYAN);
+					putpixel(x, y, CYAN);
+				}
 			}
 		}
 	}
