@@ -25,8 +25,8 @@ Benoit Mandelbrot. It is the most well-known fractal. Computing the Mandelbrot u
 computed by even processors in smart watches. 
 
 For fun, there is a simple multithreaded implementation provided here using OpenMP. The setcolor() and putpixel() functions are both thread safe (but involve expensive locks),
-which is why the calls to them are not in a "#pragma omp critical" section. The speedup achieved is ~1.25x which is nothing spectacular. This might have something to with
-the BGI library apart from the just the quality of the naive implementation here. Something more granular like using a thread pool with tiling may provide
+which is why the calls to them are not in a "#pragma omp critical" section. The speedup achieved is ~1.25x which is nothing spectacular. This might have something to do with
+the BGI library apart from just the poor quality of the naive implementation here. Something more granular, like using a thread pool with tiling may provide
 better performance.
 
 To know more about the Mandelbrot set please refer to https://en.wikipedia.org/wiki/Mandelbrot_set
