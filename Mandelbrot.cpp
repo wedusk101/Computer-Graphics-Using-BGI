@@ -122,7 +122,6 @@ void evalMandel(Complex &z, const Complex &c)
 
 void drawMandelbrot(const int &width, const int &height)
 {
-	int bound = 0;	
 	for (int y = 0; y < height; y++) // y axis of the image	
 	{
 		for (int x = 0; x < width; x++) // x axis of the image
@@ -152,7 +151,6 @@ void drawMandelbrot(const int &width, const int &height)
 
 void drawMandelbrotMT(const int &width, const int &height)
 {
-	int bound = 0;
 	size_t nThreads = std::thread::hardware_concurrency();
 #pragma omp parallel num_threads(nThreads)
 	{
