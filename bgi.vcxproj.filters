@@ -48,28 +48,34 @@
     <ClCompile Include="main.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Mandelbrot.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="bresenham.cpp">
+    <ClCompile Include="Examples\bresenham.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="circle.cpp">
+    <ClCompile Include="Examples\circle.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="hello_world.cpp">
+    <ClCompile Include="Examples\dda.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="midpointCircle.cpp">
+    <ClCompile Include="Examples\flood_fill.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="midpointClipping.cpp">
+    <ClCompile Include="Examples\hello_world.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="sutherland_WIP.cpp">
+    <ClCompile Include="Examples\line_test.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="dda.cpp">
+    <ClCompile Include="Examples\Mandelbrot.cpp">
+      <Filter>Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="Examples\midpointCircle.cpp">
+      <Filter>Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="Examples\midpointClipping.cpp">
+      <Filter>Examples</Filter>
+    </ClCompile>
+    <ClCompile Include="Examples\sutherland_WIP.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,10 +95,10 @@
     <ClInclude Include="dibutil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="primitives.h">
+    <ClInclude Include="colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="colors.h">
+    <ClInclude Include="primitives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
