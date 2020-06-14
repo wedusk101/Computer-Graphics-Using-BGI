@@ -78,7 +78,7 @@
     <ClCompile Include="Examples\sutherland_WIP.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="Bezier.cpp">
+    <ClCompile Include="Examples\Bezier.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
   </ItemGroup>
