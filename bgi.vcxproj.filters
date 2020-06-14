@@ -78,6 +78,9 @@
     <ClCompile Include="Examples\sutherland_WIP.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
+    <ClCompile Include="Bezier.cpp">
+      <Filter>Examples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="winbgim.h">
