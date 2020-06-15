@@ -1,3 +1,4 @@
+/*The following program render Bezier curves using the Berstein polynomials.*/
 #include <iostream>
 #include <windows.h>
 #include <cmath>
@@ -27,8 +28,14 @@ void drawBezier(Point points[])
 	Point lerpPoint;
 	Point startPoint = points[0];
 	setcolor(YELLOW);
+
+	// calculate the interpolated point using the Berstein  polynomials 
+	// B(t) = P_0 * (1 - t)^3 + P_1 * 3 * (1 - t)^2 * t + P_2 * 3 * (1 - t) * t^2 + P_3 * t^3
+	// where P(0, 1, 2, 3) are the four control points in a cubic Bezier curve,
+	// t is the parameter and B(t) gives us the interpolated point at that paramater.
+	// B(t) has to be evaluated for (x, y, z) individually for each dimension - here it is calculated for (x, y) as this is a 2D render
 	for (t = 0; t < 1.0; t += inc)
-	{
+	{		
 		lerpPoint.x = points[0].x * pow((1 - t), 3) + points[1].x * 3 * pow((1 - t), 2) * t + points[2].x * 3 * (1 - t) * t * t + points[3].x * pow(t, 3);
 		lerpPoint.y = points[0].y * pow((1 - t), 3) + points[1].y * 3 * pow((1 - t), 2) * t + points[2].y * 3 * (1 - t) * t * t + points[3].y * pow(t, 3);
 		line(startPoint.x, startPoint.y, lerpPoint.x, lerpPoint.y);
