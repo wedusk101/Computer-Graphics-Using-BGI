@@ -84,7 +84,7 @@ void drawBezierBernstein(Point points[], uint16_t steps)
 	Point startPoint = points[0];
 	setcolor(YELLOW);
 
-	// calculate the interpolated point using the Berstein  polynomials 
+	// calculate the interpolated point using the Bernstein  polynomials 
 	// B(t) = P_0 * (1 - t)^3 + P_1 * 3 * (1 - t)^2 * t + P_2 * 3 * (1 - t) * t^2 + P_3 * t^3
 	// where P(0, 1, 2, 3) are the four control points in a cubic Bezier curve,
 	// t is the parameter and B(t) gives us the interpolated point at that paramater.
