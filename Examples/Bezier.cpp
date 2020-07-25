@@ -1,4 +1,4 @@
-/*The following program renders Bezier curves in two ways --- using Berstein polynomials and using de Casteljau's algorithm .*/
+/*The following program renders Bezier curves in two ways --- using Bernstein polynomials and using de Casteljau's algorithm .*/
 #include <iostream>
 #include <windows.h>
 #include <cmath>
@@ -12,9 +12,42 @@ typedef struct
 	double y;
 } Point;
 
+typedef struct
+{
+	Point controlPoints[4];
+} Curve;
+
 double lerp(double start, double end, double t)
 {
 	return start * (1 - t) + end * t;
+}
+
+// splits a Bezier curve into two smaller Bezier curves s1 and s2
+void split(const Curve &ogCurve, Curve &s1, Curve &s2)
+{
+	Point ogC1C2;
+	s1.controlPoints[0] = ogCurve.controlPoints[0];
+
+	s1.controlPoints[1].x = lerp(ogCurve.controlPoints[0].x, ogCurve.controlPoints[1].x, 0.5);
+	s1.controlPoints[1].y = lerp(ogCurve.controlPoints[0].y, ogCurve.controlPoints[1].y, 0.5);
+
+	ogC1C2.x = lerp(ogCurve.controlPoints[1].x, ogCurve.controlPoints[2].x, 0.5);
+	ogC1C2.y = lerp(ogCurve.controlPoints[1].y, ogCurve.controlPoints[2].y, 0.5);
+
+	s1.controlPoints[2].x = lerp(s1.controlPoints[1].x, ogC1C2.x, 0.5);
+	s1.controlPoints[2].y = lerp(s1.controlPoints[1].y, ogC1C2.y, 0.5);
+
+	s2.controlPoints[2].x = lerp(ogCurve.controlPoints[2].x, ogCurve.controlPoints[3].x, 0.5);
+	s2.controlPoints[2].y = lerp(ogCurve.controlPoints[2].y, ogCurve.controlPoints[3].y, 0.5);
+
+	s2.controlPoints[1].x = lerp(ogC1C2.x, s2.controlPoints[2].x, 0.5);
+	s2.controlPoints[1].y = lerp(ogC1C2.y, s2.controlPoints[2].y, 0.5);
+
+	s1.controlPoints[3].x = lerp(s1.controlPoints[2].x, s2.controlPoints[1].x, 0.5);
+	s1.controlPoints[3].y = lerp(s1.controlPoints[2].y, s2.controlPoints[1].y, 0.5);
+
+	s2.controlPoints[0] = s1.controlPoints[3];
+	s2.controlPoints[3] = ogCurve.controlPoints[3];
 }
 
 Point getLerpedPointRecursive(const std::vector<Point> &vec, double t)
@@ -106,7 +139,7 @@ int main()
 	initwindow(640, 480, "Bezier");
 	int ch = 0;
 	uint16_t stepSize = 0;
-	Point curve[4];
+	Curve curve;
 	while (true)
 	{
 		std::cout << "This program renders cubic Bezier curves (with 4 control points) with animation." << std::endl;
@@ -114,19 +147,44 @@ int main()
 		for (int i = 0; i < 4; i++)
 		{
 			std::cout << "Please enter the coordinates for point " << i + 1 << "." << std::endl;
-			std::cin >> curve[i].x >> curve[i].y;
+			std::cin >> curve.controlPoints[i].x >> curve.controlPoints[i].y;
 		}
 		std::cout << "Please enter the step size. Higher step sizes result in higher accuracy but render slower." << std::endl;
 		std::cin >> stepSize;
 		std::cout << "Enter 1 to have the Bezier curve rendered using Bernstein polynomials." << std::endl;
 		std::cout << "Enter 2 to have the Bezier curve rendered using de Casteljau's algorithm." << std::endl;
+		std::cout << "Enter 3 to have the Bezier curve split into two Bezier curves." << std::endl;
 		std::cin >> ch;
-		if (ch == 1)
-			drawBezierBernstein(curve, stepSize);
-		else if (ch == 2)
-			drawBezierDeCasteljau(curve, stepSize);
-		else
-			std::cout << "Invalid input." << std::endl;
+		switch (ch)
+		{
+
+			case 1:
+				drawBezierBernstein(curve.controlPoints, stepSize);
+				break;
+			case 2:
+				drawBezierDeCasteljau(curve.controlPoints, stepSize);
+				break;
+			case 3:
+				setcolor(WHITE);
+				circle(curve.controlPoints[0].x, curve.controlPoints[0].y, 5);
+				circle(curve.controlPoints[1].x, curve.controlPoints[1].y, 5);
+				circle(curve.controlPoints[2].x, curve.controlPoints[2].y, 5);
+				circle(curve.controlPoints[3].x, curve.controlPoints[3].y, 5);
+
+				setcolor(BLUE);
+				line(curve.controlPoints[0].x, curve.controlPoints[0].y, curve.controlPoints[1].x, curve.controlPoints[1].y);
+				line(curve.controlPoints[1].x, curve.controlPoints[1].y, curve.controlPoints[2].x, curve.controlPoints[2].y);
+				line(curve.controlPoints[2].x, curve.controlPoints[2].y, curve.controlPoints[3].x, curve.controlPoints[3].y);
+
+				Curve c1, c2;
+				split(curve, c1, c2);
+				drawBezierBernstein(c1.controlPoints, stepSize);
+				delay(2000);
+				drawBezierBernstein(c2.controlPoints, stepSize);
+				break;
+			default:
+				std::cout << "Invalid input. Please enter the correct choice." << std::endl;
+		}
 		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch == 0)
