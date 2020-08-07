@@ -81,6 +81,9 @@
     <ClCompile Include="Examples\Bezier.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
+    <ClCompile Include="Voronoi.cpp">
+      <Filter>Examples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="winbgim.h">

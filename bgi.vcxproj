@@ -71,7 +71,10 @@
     <ClCompile Include="bgiout.cxx" />
     <ClCompile Include="dibutil.cxx" />
     <ClCompile Include="drawing.cxx" />
-    <ClCompile Include="Examples\Bezier.cpp" />
+    <ClCompile Include="Examples\Bezier.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Examples\bresenham.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -118,6 +121,7 @@
     <ClCompile Include="palette.cxx" />
     <ClCompile Include="main.cxx" />
     <ClCompile Include="text.cxx" />
+    <ClCompile Include="Voronoi.cpp" />
     <ClCompile Include="winbgi.cxx" />
     <ClCompile Include="winthread.cxx" />
   </ItemGroup>
