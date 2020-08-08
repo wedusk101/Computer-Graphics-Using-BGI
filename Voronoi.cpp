@@ -51,6 +51,20 @@ typedef struct Point
 	}
 } Point;
 
+typedef struct Line
+{
+	Point src;
+	Point dst;
+
+	Line(const Point &s_, const Point &d_) : src(s_), dst(d_) {}
+} Line;
+
+typedef struct Cell
+{
+	Point site;
+	std::vector<Line> boundaryList;
+} Cell;
+
 inline double getEuclideanDist(const Point &p1, const Point &p2)
 {
 	return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
@@ -87,6 +101,7 @@ bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Poin
 void drawVoronoi(size_t maxPoints, double radius)
 {
 	std::vector<Point> siteList;
+	std::vector<Line> boundaryList;
 	std::default_random_engine seed;
 	std::uniform_real_distribution<double> rnd(0, 640);
 	Point src, dst;
