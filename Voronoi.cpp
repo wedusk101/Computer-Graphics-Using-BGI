@@ -6,6 +6,7 @@
 #include "colors.h"
 
 constexpr double EPSILON = 1e-4;
+static size_t pointCount = 0;
 
 typedef struct Vec2
 {
@@ -25,9 +26,14 @@ typedef struct Vec2
 		return Vec2(x / c, y / c);
 	}
 
+	inline double getMagnitude() const
+	{
+		return sqrt(x * x + y * y);
+	}
+
 	Vec2 getNormalized() const
 	{
-		double mag = sqrt(x * x + y * y);
+		double mag = getMagnitude();
 		if (fabs(mag) < EPSILON)
 			return Vec2();
 		return Vec2(x / mag, y / mag);
@@ -39,8 +45,13 @@ typedef struct Point
 	double x;
 	double y;
 
+	size_t pointID;
+
 	Point() {}
-	Point(double x_, double y_) : x(x_), y(y_) {}
+	Point(double x_, double y_) : x(x_), y(y_)
+	{
+		pointID = ++pointCount;
+	}
 
 	inline Vec2 operator-(const Point &p) const
 	{
@@ -88,6 +99,11 @@ typedef struct Triangle
 		line(c.x, c.y, a.x, a.y);
 	}
 
+	void display() const
+	{
+		std::cout << "A(" << a.x << ", " << a.y << ")" << "	B(" << b.x << ", " << b.y << ")" << "	C(" << c.x << ", " << c.y << ")" << std::endl;
+	}
+
 	bool isNeighbor(const Triangle &candidate)
 	{
 		int count = 0;
@@ -102,6 +118,15 @@ typedef struct Triangle
 		return (count >= 2);
 	}
 } Triangle;
+
+typedef struct Circle
+{
+	Point center;
+	double radius;
+
+	Circle() {}
+	Circle(const Point &c, double r) : center(c), radius(r) {}
+} Circle;
 
 inline double getEuclideanDist(const Point &p1, const Point &p2)
 {
@@ -136,6 +161,55 @@ bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Poin
 	}
 }
 
+Circle getCircumCircle(const Triangle &triangle)
+{
+	triangle.display();
+
+	double x = 0, y = 0, radius = 0, m1 = 0, m2 = 0, c1 = 0, c2 = 0;
+	double den1 = triangle.c.y - triangle.a.y;
+	double den2 = triangle.c.y - triangle.b.y;
+
+	if (fabs(den1) < EPSILON && fabs(den2) < EPSILON)
+	{
+		std::cerr << "Error! Denegerate triangle detected." << std::endl;
+		return Circle();
+	}
+	
+	// denegerate case for m1
+	if (fabs(den1) < EPSILON)
+	{
+		m2 = ((triangle.b.x - triangle.c.x) / den2);
+		c2 = (triangle.c.y + triangle.b.y - ((triangle.b.x + triangle.c.x) * m2)) / 2;
+		x = (triangle.a.x + triangle.c.x) / 2;
+		y = m2 * x + c2;
+		Point center(x, y);
+		radius = getEuclideanDist(center, triangle.b);
+		return Circle(center, radius);
+	}
+
+	// denegerate case for m2
+	if (fabs(den2) < EPSILON)
+	{
+		m1 = ((triangle.a.x - triangle.c.x) / den1);
+		c1 = (triangle.c.y + triangle.a.y - ((triangle.a.x + triangle.c.x) * m1)) / 2;
+		x = (triangle.a.x + triangle.c.x) / 2;
+		y = m1 * x + c1;
+		Point center(x, y);
+		radius = getEuclideanDist(center, triangle.b);
+		return Circle(center, radius);
+	}
+
+	m1 = ((triangle.a.x - triangle.c.x) / den1);
+	m2 = ((triangle.b.x - triangle.c.x) / den2);
+	c1 = (triangle.c.y + triangle.a.y - ((triangle.a.x + triangle.c.x) * m1)) / 2;
+	c2 = (triangle.c.y + triangle.b.y - ((triangle.b.x + triangle.c.x) * m2)) / 2;
+	x = (c2 - c1) / (m1 - m2);
+	y = m1 * x + c1;
+	Point center(x, y);
+	radius = getEuclideanDist(center, triangle.a);
+	return Circle(center, radius);
+}
+
 void drawVoronoi(size_t maxPoints, double radius)
 {
 	std::vector<Point> siteList;
@@ -144,15 +218,18 @@ void drawVoronoi(size_t maxPoints, double radius)
 	std::uniform_real_distribution<double> rnd(0, 640);
 	Point src, dst;
 
+	double x = rnd(seed);
+	double y = rnd(seed);
+	Point site(x, y); // add the first point
+
 	// generate sites
 	while (siteList.size() < maxPoints)
 	{
-		double x = rnd(seed);
-		double y = rnd(seed);
-		Point site(x, y);		
+		site.x = rnd(seed);
+		site.y = rnd(seed);
 
 		// Poisson disk sampling
-		if (isValidPos(site, radius, siteList))
+		if (isValidPos(site, radius, siteList)) // inefficient rejection sampling
 		{
 			siteList.push_back(site);
 			putpixel((int)site.x, (int)site.y, LIGHTRED);
@@ -177,6 +254,8 @@ int main()
 	initwindow(640, 480, "Voronoi");
 	double minSiteDist = 0;
 	size_t maxPoints = 0, ch = 0;
+
+	/*
 	while (true)
 	{
 		std::cout << "This program creates a Voronoi parition pattern." << std::endl;
@@ -185,6 +264,34 @@ int main()
 		std::cout << "Please enter the minimum site distance between points(radius)." << std::endl;
 		std::cin >> minSiteDist;
 		drawVoronoi(maxPoints, minSiteDist);
+		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
+		std::cin >> ch;
+		if (ch == 0)
+			break;
+		std::cout << "\n\n";
+		cleardevice();
+	}
+	*/
+
+	while (true)
+	{
+		Point p1, p2, p3;
+		std::cout << "Enter 3 points." << std::endl;
+		std::cin >> p1.x >> p1.y >> p2.x >> p2.y >> p3.x >> p3.y;
+		setcolor(CYAN);
+		circle((int)p1.x, (int)p1.y, 5);
+		circle((int)p2.x, (int)p2.y, 5);
+		circle((int)p3.x, (int)p3.y, 5);
+		Triangle t(p1, p2, p3);
+		Circle c = getCircumCircle(t);
+		putpixel(p1.x, p1.y, RED);
+		putpixel(p2.x, p2.y, RED);
+		putpixel(p3.x, p3.y, RED);
+		setcolor(CYAN);
+		circle((int)c.center.x, (int)c.center.y, 2);
+		setcolor(YELLOW);		
+		circle((int)c.center.x, (int)c.center.y, (int)c.radius);
+		std::cout << "Center: (" << c.center.x << ", " << c.center.y << ")" << "\nRadius: " << c.radius << std::endl;
 		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch == 0)
