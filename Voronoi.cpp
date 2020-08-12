@@ -1,11 +1,17 @@
+
+#define NOMINMAX
+
 #include <iostream>
 #include <random>
 #include <cmath>
 #include <vector>
+#include <limits>
 #include "graphics.h"
 #include "colors.h"
 
 constexpr double EPSILON = 1e-4;
+constexpr double DOUBLE_MIN = std::numeric_limits<double>::lowest();
+constexpr double DOUBLE_MAX = std::numeric_limits<double>::max();
 static size_t pointCount = 0;
 
 typedef struct Vec2
@@ -89,7 +95,12 @@ typedef struct Triangle
 	Point b;
 	Point c;
 
-	Triangle(const Point &a_, const Point &b_, const Point &c_) : a(a_), b(b_), c(c_) {}
+	Edge e1;
+	Edge e2;
+	Edge e3;
+
+	Triangle(const Point &a_, const Point &b_, const Point &c_) : a(a_), b(b_), c(c_), e1(Edge(a, b)), e2(Edge(b, c)), e3(Edge(c, a)) {}
+	Triangle(const Edge &e1_, const Edge &e2_, const Edge &e3_) : e1(e1_), e2(e2_), e3(e3_), a(e1_.src), b(e2_.src), c(e3_.src) {}
 
 	void draw(uint8_t color) const
 	{
@@ -141,6 +152,11 @@ bool isValidPos(const Point &p, const double minRadius, const std::vector<Point>
 	return true;
 }
 
+inline bool isInsideCircle(const Point &p, const Circle &c)
+{
+	return getEuclideanDist(p, c.center) < c.radius;
+}
+
 // calculates the intersection between two circles
 bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Point &p2)
 {
@@ -171,11 +187,11 @@ Circle getCircumCircle(const Triangle &triangle)
 
 	if (fabs(den1) < EPSILON && fabs(den2) < EPSILON)
 	{
-		std::cerr << "Error! Denegerate triangle detected." << std::endl;
+		std::cerr << "Error! Degenerate triangle detected." << std::endl;
 		return Circle();
 	}
 	
-	// denegerate case for m1
+	// degenerate case for m1
 	if (fabs(den1) < EPSILON)
 	{
 		m2 = ((triangle.b.x - triangle.c.x) / den2);
@@ -187,7 +203,7 @@ Circle getCircumCircle(const Triangle &triangle)
 		return Circle(center, radius);
 	}
 
-	// denegerate case for m2
+	// degenerate case for m2
 	if (fabs(den2) < EPSILON)
 	{
 		m1 = ((triangle.a.x - triangle.c.x) / den1);
@@ -208,6 +224,43 @@ Circle getCircumCircle(const Triangle &triangle)
 	Point center(x, y);
 	radius = getEuclideanDist(center, triangle.a);
 	return Circle(center, radius);
+}
+
+// Bowyer-Watson algorithm for Delaunay triangulation
+std::vector<Triangle> triangulate(std::vector<Point> &siteList)
+{
+	std::vector<Triangle> meshList;
+
+	Triangle superTriangle(Point(DOUBLE_MAX, DOUBLE_MIN), Point(DOUBLE_MIN, DOUBLE_MAX), Point(DOUBLE_MAX, DOUBLE_MAX));	
+	siteList.push_back(superTriangle.a);
+	siteList.push_back(superTriangle.b);
+	siteList.push_back(superTriangle.c);
+	meshList.push_back(superTriangle);
+
+	for (auto it = siteList.begin(); it != siteList.end(); ++it)
+	{
+		std::vector<Edge> boundaryList;
+		for (auto itr = meshList.begin(); itr != meshList.end(); ++itr)
+		{
+			Circle circumCircle = getCircumCircle(*itr);
+			if (isInsideCircle(*it, circumCircle))
+			{
+				boundaryList.push_back(itr->e1);
+				boundaryList.push_back(itr->e2);
+				boundaryList.push_back(itr->e3);
+				meshList.erase(itr);
+			}
+		}
+
+		// Edge encEdge1()
+		// meshList.push_back(Triangle())
+
+	}
+
+
+
+
+	return meshList;
 }
 
 void drawVoronoi(size_t maxPoints, double radius)
@@ -255,7 +308,6 @@ int main()
 	double minSiteDist = 0;
 	size_t maxPoints = 0, ch = 0;
 
-	/*
 	while (true)
 	{
 		std::cout << "This program creates a Voronoi parition pattern." << std::endl;
@@ -271,7 +323,10 @@ int main()
 		std::cout << "\n\n";
 		cleardevice();
 	}
-	*/
+
+	/*
+
+	// test getCircumCircle()
 
 	while (true)
 	{
@@ -299,6 +354,9 @@ int main()
 		std::cout << "\n\n";
 		cleardevice();
 	}
+
+	*/
+
 	std::cout << "Thank you." << std::endl;
 	system("pause");
 	closegraph();
