@@ -81,6 +81,11 @@ typedef struct Edge
 	Point dst;
 
 	Edge(const Point &s_, const Point &d_) : src(s_), dst(d_) {}
+
+	inline bool operator==(const Edge &e) const
+	{
+		return (src == e.src && dst == e.dst) || (dst == e.src && src == e.dst);
+	}
 } Edge;
 
 typedef struct Cell
@@ -102,6 +107,12 @@ typedef struct Triangle
 	Triangle(const Point &a_, const Point &b_, const Point &c_) : a(a_), b(b_), c(c_), e1(Edge(a, b)), e2(Edge(b, c)), e3(Edge(c, a)) {}
 	Triangle(const Edge &e1_, const Edge &e2_, const Edge &e3_) : e1(e1_), e2(e2_), e3(e3_), a(e1_.src), b(e2_.src), c(e3_.src) {}
 
+	// t[0] = e1, t[1] = e2, t[2] = e3
+	inline Edge& operator[](int i)
+	{
+		return (i == 0) ? e1 : (i == 1) ? e2 : e3;
+	}
+
 	void draw(uint8_t color) const
 	{
 		setcolor(color);
@@ -115,7 +126,8 @@ typedef struct Triangle
 		std::cout << "A(" << a.x << ", " << a.y << ")" << "	B(" << b.x << ", " << b.y << ")" << "	C(" << c.x << ", " << c.y << ")" << std::endl;
 	}
 
-	bool isNeighbor(const Triangle &candidate)
+	// returns whether two triangles are nighbors of each other
+	bool isNeighbor(const Triangle &candidate) const
 	{
 		int count = 0;
 
@@ -127,6 +139,21 @@ typedef struct Triangle
 			count++;
 
 		return (count >= 2);
+	}
+
+	inline bool containsVertex(const Point &v) const
+	{
+		return (a == v || b == v || c == v);
+	}
+
+	inline bool containsEdge(const Edge &e) const
+	{
+		return (e == e1 || e == e2 || e == e3);
+	}
+
+	inline bool operator==(const Triangle &t) const
+	{
+		return (a == t.a && b == t.b && c == t.c);
 	}
 } Triangle;
 
@@ -144,6 +171,7 @@ inline double getEuclideanDist(const Point &p1, const Point &p2)
 	return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
 
+// used for Possion disk sampling during the generation of sites
 bool isValidPos(const Point &p, const double minRadius, const std::vector<Point> &listPoints)
 {
 	for (const auto point : listPoints)
@@ -156,6 +184,8 @@ inline bool isInsideCircle(const Point &p, const Circle &c)
 {
 	return getEuclideanDist(p, c.center) < c.radius;
 }
+
+/*
 
 // calculates the intersection between two circles
 bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Point &p2)
@@ -177,9 +207,11 @@ bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Poin
 	}
 }
 
+*/
+
 Circle getCircumCircle(const Triangle &triangle)
 {
-	triangle.display();
+	// triangle.display();
 
 	double x = 0, y = 0, radius = 0, m1 = 0, m2 = 0, c1 = 0, c2 = 0;
 	double den1 = triangle.c.y - triangle.a.y;
@@ -227,46 +259,68 @@ Circle getCircumCircle(const Triangle &triangle)
 }
 
 // Bowyer-Watson algorithm for Delaunay triangulation
-std::vector<Triangle> triangulate(std::vector<Point> &siteList)
+std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 {
 	std::vector<Triangle> meshList;
 
 	Triangle superTriangle(Point(DOUBLE_MAX, DOUBLE_MIN), Point(DOUBLE_MIN, DOUBLE_MAX), Point(DOUBLE_MAX, DOUBLE_MAX));	
-	siteList.push_back(superTriangle.a);
-	siteList.push_back(superTriangle.b);
-	siteList.push_back(superTriangle.c);
 	meshList.push_back(superTriangle);
 
-	for (auto it = siteList.begin(); it != siteList.end(); ++it)
+	// for each site in the list of sites (i.e. the list of input points)
+	for (auto siteItr = siteList.begin(); siteItr != siteList.end(); ++siteItr)
 	{
-		std::vector<Edge> boundaryList;
+		// list of non-Delaunay triangles
+		std::vector<Triangle> invalidMeshList;	
+
+		// for each triangle in the list of triangles to be returned
 		for (auto itr = meshList.begin(); itr != meshList.end(); ++itr)
 		{
 			Circle circumCircle = getCircumCircle(*itr);
-			if (isInsideCircle(*it, circumCircle))
+			if (isInsideCircle(*siteItr, circumCircle))
+				invalidMeshList.push_back(*itr);
+		}
+		std::vector<Edge> boundaryList;
+
+		// for each triangle in the list of invalid triangles
+		for (auto &triangle : invalidMeshList)
+		{
+			for (int i = 0; i < 3; i++) // for each edge in each triangle
 			{
-				boundaryList.push_back(itr->e1);
-				boundaryList.push_back(itr->e2);
-				boundaryList.push_back(itr->e3);
-				meshList.erase(itr);
+				int match = 0;
+				for (const auto &edgeTri : invalidMeshList)
+					if (edgeTri.containsEdge(triangle[i]))
+						match++;
+
+				if (match == 1) // edge is unique 
+					boundaryList.push_back(triangle[i]);
 			}
 		}
 
-		// Edge encEdge1()
-		// meshList.push_back(Triangle())
+		// remove double edges by deleting duplicate triangles
+		for (const auto &badTriangle : invalidMeshList)
+			for (auto it = meshList.begin(); it != meshList.end(); ++it)
+				if (*it == badTriangle)
+					meshList.erase(it);
 
+		// fill the polygonal hole by retriangulating it
+		for (const auto &edge : boundaryList)
+		{
+			Triangle t(edge.src, edge.dst, *siteItr);
+			meshList.push_back(t);
+		}
 	}
 
-
-
+	// remove the super triangle
+	for (auto it = meshList.begin(); it != meshList.end(); ++it)
+		if (it->containsVertex(superTriangle.a) || it->containsVertex(superTriangle.b) || it->containsVertex(superTriangle.c))
+			meshList.erase(it);
 
 	return meshList;
 }
 
-void drawVoronoi(size_t maxPoints, double radius)
+std::vector<Point> generateSites(size_t maxPoints, double radius)
 {
 	std::vector<Point> siteList;
-	std::vector<Edge> boundaryList;
 	std::default_random_engine seed;
 	std::uniform_real_distribution<double> rnd(0, 640);
 	Point src, dst;
@@ -275,7 +329,6 @@ void drawVoronoi(size_t maxPoints, double radius)
 	double y = rnd(seed);
 	Point site(x, y); // add the first point
 
-	// generate sites
 	while (siteList.size() < maxPoints)
 	{
 		site.x = rnd(seed);
@@ -287,20 +340,20 @@ void drawVoronoi(size_t maxPoints, double radius)
 			siteList.push_back(site);
 			putpixel((int)site.x, (int)site.y, LIGHTRED);
 			setcolor(CYAN);
-			circle((int)site.x, (int)site.y, radius);
+			circle((int)site.x, (int)site.y, 2);
 		}
 	}
 
-	setcolor(YELLOW);
-	for (const auto point : siteList)
-	{
-		for (const auto site : siteList)
-		{
-			if (intersects(site, point, radius, src, dst))
-				line((int)src.x, (int)src.y, (int)dst.x, (int)dst.y);
-		}
-	}
+	return siteList;
 }
+
+void drawMesh(const std::vector<Triangle> &meshList)
+{
+	for (const auto &triangle : meshList)
+		triangle.draw(LIGHTGREEN);
+}
+
+// void drawVoronoi(std::vector<Triangle> &meshList)
 
 int main()
 {
@@ -315,7 +368,9 @@ int main()
 		std::cin >> maxPoints;
 		std::cout << "Please enter the minimum site distance between points(radius)." << std::endl;
 		std::cin >> minSiteDist;
-		drawVoronoi(maxPoints, minSiteDist);
+		std::vector<Point> sites = generateSites(maxPoints, minSiteDist);
+		std::vector<Triangle> mesh = triangulate(sites);
+		drawMesh(mesh);
 		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch == 0)
