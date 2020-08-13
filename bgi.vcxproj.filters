@@ -81,7 +81,7 @@
     <ClCompile Include="Examples\Bezier.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="Voronoi.cpp">
+    <ClCompile Include="Examples\Voronoi.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
   </ItemGroup>
