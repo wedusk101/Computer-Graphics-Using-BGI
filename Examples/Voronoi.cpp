@@ -153,7 +153,16 @@ typedef struct Triangle
 
 	inline bool operator==(const Triangle &t) const
 	{
-		return (a == t.a && b == t.b && c == t.c);
+		bool cond1 = (a == t.a && b == t.b && c == t.c);
+		bool cond2 = (a == t.a && b == t.c && c == t.b);
+
+		bool cond3 = (a == t.b && b == t.a && c == t.c);
+		bool cond4 = (a == t.b && b == t.c && c == t.a);
+
+		bool cond5 = (a == t.c && b == t.a && c == t.b);
+		bool cond6 = (a == t.c && b == t.b && c == t.a);
+
+		return (cond1 || cond2 || cond3 || cond4 || cond5 || cond6);
 	}
 } Triangle;
 
