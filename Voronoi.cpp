@@ -214,10 +214,12 @@ Circle getCircumCircle(const Triangle &triangle)
 	// triangle.display();
 
 	double x = 0, y = 0, radius = 0, m1 = 0, m2 = 0, c1 = 0, c2 = 0;
+	double num1 = triangle.a.x - triangle.c.x;
 	double den1 = triangle.c.y - triangle.a.y;
-	double den2 = triangle.c.y - triangle.b.y;
+	double num2 = triangle.b.x - triangle.c.x;
+	double den2 = triangle.c.y - triangle.b.y;	
 
-	if (fabs(den1) < EPSILON && fabs(den2) < EPSILON)
+	if (fabs(num1) < EPSILON && fabs(num2) < EPSILON || fabs(den1) < EPSILON && fabs(den2) < EPSILON)
 	{
 		std::cerr << "Error! Degenerate triangle detected." << std::endl;
 		return Circle();
@@ -226,7 +228,7 @@ Circle getCircumCircle(const Triangle &triangle)
 	// degenerate case for m1
 	if (fabs(den1) < EPSILON)
 	{
-		m2 = ((triangle.b.x - triangle.c.x) / den2);
+		m2 = num2 / den2;
 		c2 = (triangle.c.y + triangle.b.y - ((triangle.b.x + triangle.c.x) * m2)) / 2;
 		x = (triangle.a.x + triangle.c.x) / 2;
 		y = m2 * x + c2;
@@ -238,7 +240,7 @@ Circle getCircumCircle(const Triangle &triangle)
 	// degenerate case for m2
 	if (fabs(den2) < EPSILON)
 	{
-		m1 = ((triangle.a.x - triangle.c.x) / den1);
+		m1 = num1 / den1;
 		c1 = (triangle.c.y + triangle.a.y - ((triangle.a.x + triangle.c.x) * m1)) / 2;
 		x = (triangle.a.x + triangle.c.x) / 2;
 		y = m1 * x + c1;
@@ -247,8 +249,8 @@ Circle getCircumCircle(const Triangle &triangle)
 		return Circle(center, radius);
 	}
 
-	m1 = ((triangle.a.x - triangle.c.x) / den1);
-	m2 = ((triangle.b.x - triangle.c.x) / den2);
+	m1 = num1 / den1;
+	m2 = num2 / den2;
 	c1 = (triangle.c.y + triangle.a.y - ((triangle.a.x + triangle.c.x) * m1)) / 2;
 	c2 = (triangle.c.y + triangle.b.y - ((triangle.b.x + triangle.c.x) * m2)) / 2;
 	x = (c2 - c1) / (m1 - m2);
