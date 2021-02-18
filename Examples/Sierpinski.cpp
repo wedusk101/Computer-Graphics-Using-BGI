@@ -1,11 +1,12 @@
 /*
 
 The following program renders the Sierpinki triangle, which is a kind of fractal. Fractals are class of mathematical objects with 
-repeating self-similar patterns visible on zooming in closer.
+repeating, self-similar patterns visible on zooming into or out of a region of the rendered image.
 
-This is a naive, single-threaded, recursive implementation of the Sierpinski triangle with a lot of overdraw slowing it down. The user is given 
-a choice of whether to use default render resolution (along with a preset triangle) or to use their own values. The performance
-is measured and is displayed to the user upon completion of the rendering.
+This implementation of the Sierpinski triangle has two modes - a speed mode and a pretty mode. The speed mode uses 66% fewer draw calls
+for significantly better performance at the cost of a drawing pattern that may not be as aesthetically pleasing as the pretty mode, which
+has a lot of overdraw. The user is given a choice of whether to use default render resolution (along with a preset triangle) or to use
+their own values. The performance is measured and is displayed to the user upon completion of the rendering.
 
 For more information on the Sierpinski triangle, please visit https://en.wikipedia.org/wiki/Sierpi%C5%84ski_triangle
 
@@ -32,7 +33,7 @@ void drawTriangle(const Triangle &triangle)
 	line(triangle.c.x, triangle.c.y, triangle.a.x, triangle.a.y); // CA
 }
 
-void genSierpinski(const Triangle &triangle, int depth, int maxDepth)
+void genSierpinskiPretty(const Triangle &triangle, int depth, int maxDepth)
 {
 	if (depth < maxDepth)
 	{
@@ -58,9 +59,43 @@ void genSierpinski(const Triangle &triangle, int depth, int maxDepth)
 		drawTriangle(inner2);
 		drawTriangle(inner3);
 
-		genSierpinski(inner1, depth + 1, maxDepth);
-		genSierpinski(inner2, depth + 1, maxDepth);
-		genSierpinski(inner3, depth + 1, maxDepth);
+		genSierpinskiPretty(inner1, depth + 1, maxDepth);
+		genSierpinskiPretty(inner2, depth + 1, maxDepth);
+		genSierpinskiPretty(inner3, depth + 1, maxDepth);
+	}
+}
+
+void genSierpinskiSpeed(const Triangle &triangle, int depth, int maxDepth)
+{
+	if (depth < maxDepth)
+	{
+		Triangle inner, top, left, right;
+		Point m1, m2, m3;
+		genMidpoint(triangle.a, triangle.b, m1);
+		genMidpoint(triangle.a, triangle.c, m2);
+		genMidpoint(triangle.b, triangle.c, m3);
+
+		inner.a = m1;
+		inner.b = m2;
+		inner.c = m3;
+
+		drawTriangle(inner);
+
+		top.a = triangle.a;
+		top.b = m1;
+		top.c = m2;
+
+		left.a = m1;
+		left.b = triangle.b;
+		left.c = m3;
+
+		right.a = m2;
+		right.b = m3;
+		right.c = triangle.c;
+
+		genSierpinskiSpeed(top, depth + 1, maxDepth);
+		genSierpinskiSpeed(left, depth + 1, maxDepth);
+		genSierpinskiSpeed(right, depth + 1, maxDepth);
 	}
 }
 
@@ -102,12 +137,21 @@ int main()
 			root.c.y = 640;
 		}
 
+		ch = 1;
+		std::cout << "Use speed mode or pretty mode? (1 = Pretty / 0 = Speed) [Default = Pretty mode]" << std::endl;
+		std::cin >> ch;
+
 		std::cout << "Please enter the max recursion depth." << std::endl;
 		std::cin >> maxDepth;
 		std::cout << "Generating the Sierpinski triangle..." << std::endl;
 		initwindow(vx, vy, "Sierpinski");
 		auto start = std::chrono::high_resolution_clock::now();
-		genSierpinski(root, 0, maxDepth);
+
+		if (ch)
+			genSierpinskiPretty(root, 0, maxDepth);
+		else
+			genSierpinskiSpeed(root, 0, maxDepth);
+
 		auto stop = std::chrono::high_resolution_clock::now();
 		auto diff = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
 		printf("Time taken is %d seconds.\n", diff.count());
