@@ -84,6 +84,9 @@
     <ClCompile Include="Examples\Voronoi.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
+    <ClCompile Include="Examples\Sierpinski.cpp">
+      <Filter>Examples</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="winbgim.h">

@@ -20,4 +20,11 @@ typedef struct
 	int radius;
 } Circle;
 
+typedef struct
+{
+	Point a;
+	Point b;
+	Point c;
+} Triangle;
+
 #endif
