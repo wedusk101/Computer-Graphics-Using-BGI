@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <limits>
+#include <algorithm>
 #include "graphics.h"
 #include "colors.h"
 
@@ -173,6 +174,12 @@ typedef struct Circle
 
 	Circle() {}
 	Circle(const Point &c, double r) : center(c), radius(r) {}
+
+	void draw(uint8_t color) const
+	{
+		setcolor(color);
+		circle((int)center.x, (int)center.y, color);
+	}
 } Circle;
 
 inline double getEuclideanDist(const Point &p1, const Point &p2)
@@ -274,7 +281,10 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 {
 	std::vector<Triangle> meshList;
 
-	Triangle superTriangle(Point(DOUBLE_MAX, DOUBLE_MIN), Point(DOUBLE_MIN, DOUBLE_MAX), Point(DOUBLE_MAX, DOUBLE_MAX));	
+	Triangle superTriangle(Point(DOUBLE_MAX, DOUBLE_MIN),
+						   Point(DOUBLE_MIN, DOUBLE_MAX),
+						   Point(DOUBLE_MAX, DOUBLE_MAX));	
+
 	meshList.push_back(superTriangle);
 
 	// for each site in the list of sites (i.e. the list of input points)
@@ -287,6 +297,7 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 		for (auto itr = meshList.begin(); itr != meshList.end(); ++itr)
 		{
 			Circle circumCircle = getCircumCircle(*itr);
+			circumCircle.draw(GREEN);
 			if (isInsideCircle(*siteItr, circumCircle))
 				invalidMeshList.push_back(*itr);
 		}
@@ -321,10 +332,14 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 		}
 	}
 
-	// remove the super triangle
-	for (auto it = meshList.begin(); it != meshList.end(); ++it)
-		if (it->containsVertex(superTriangle.a) || it->containsVertex(superTriangle.b) || it->containsVertex(superTriangle.c))
-			meshList.erase(it);
+	meshList.erase(std::remove_if(meshList.begin(),
+								  meshList.end(),
+								  [&, superTriangle](auto triangle) 
+	{
+		return (triangle.containsVertex(superTriangle.a) ||
+				triangle.containsVertex(superTriangle.b) ||
+				triangle.containsVertex(superTriangle.c));
+	}), meshList.end());
 
 	return meshList;
 }

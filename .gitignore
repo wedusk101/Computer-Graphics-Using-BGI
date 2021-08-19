@@ -51,3 +51,5 @@ Temporary Items
 *.opendb
 *.tlog
 *.tlog
+Release
+Debug
