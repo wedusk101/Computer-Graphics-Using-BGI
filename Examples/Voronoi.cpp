@@ -201,7 +201,6 @@ inline bool isInsideCircle(const Point &p, const Circle &c)
 	return getEuclideanDist(p, c.center) < c.radius;
 }
 
-/*
 
 // calculates the intersection between two circles
 bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Point &p2)
@@ -222,8 +221,6 @@ bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Poin
 		return true;
 	}
 }
-
-*/
 
 Circle getCircumCircle(const Triangle &triangle)
 {
@@ -320,9 +317,14 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 
 		// remove double edges by deleting duplicate triangles
 		for (const auto &badTriangle : invalidMeshList)
-			for (auto it = meshList.begin(); it != meshList.end(); ++it)
-				if (*it == badTriangle)
-					meshList.erase(it);
+		{
+			meshList.erase(std::remove_if(meshList.begin(),
+									meshList.end(),
+									[&, badTriangle](auto triangle) 
+			{
+				return triangle == badTriangle;
+			}), meshList.end());
+		}
 
 		// fill the polygonal hole by retriangulating it
 		for (const auto &edge : boundaryList)
@@ -347,18 +349,19 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 std::vector<Point> generateSites(size_t maxPoints, double radius)
 {
 	std::vector<Point> siteList;
-	std::default_random_engine seed;
+	std::random_device r;
+	std::seed_seq seed{r()};
+	std::default_random_engine engine(seed);
 	std::uniform_real_distribution<double> rnd(0, 640);
-	Point src, dst;
 
-	double x = rnd(seed);
-	double y = rnd(seed);
+	double x = rnd(engine);
+	double y = rnd(engine);
 	Point site(x, y); // add the first point
 
 	while (siteList.size() < maxPoints)
 	{
-		site.x = rnd(seed);
-		site.y = rnd(seed);
+		site.x = rnd(engine);
+		site.y = rnd(engine);
 
 		// Poisson disk sampling
 		if (isValidPos(site, radius, siteList)) // inefficient rejection sampling
@@ -375,6 +378,9 @@ std::vector<Point> generateSites(size_t maxPoints, double radius)
 
 void drawMesh(const std::vector<Triangle> &meshList)
 {
+	if (meshList.empty())
+		std::cout << "Empty \n";
+
 	for (const auto &triangle : meshList)
 		triangle.draw(LIGHTGREEN);
 }
