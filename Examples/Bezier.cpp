@@ -68,7 +68,7 @@ Point getLerpedPointRecursive(const std::vector<Point> &vec, double t)
 	}
 }
 
-void drawBezierDeCasteljau(Point points[], uint16_t steps)
+void drawBezierDeCasteljau(Point *points, uint16_t steps)
 {
 	setcolor(LIGHTRED);
 	circle(points[0].x, points[0].y, 5);
@@ -99,7 +99,7 @@ void drawBezierDeCasteljau(Point points[], uint16_t steps)
 	}
 }
 
-void drawBezierBernstein(Point points[], uint16_t steps)
+void drawBezierBernstein(Point *points, uint16_t steps)
 {
 	setcolor(LIGHTRED);
 	circle(points[0].x, points[0].y, 5);
