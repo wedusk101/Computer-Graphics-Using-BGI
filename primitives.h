@@ -113,7 +113,7 @@ struct Vec2
 
 	Vec2 getNormal() // returns the outward unit normal vector to a given vector following the left to right convention (counter-clockwise rotation)
 	{
-		return Vec2(-y, x).getNormalized();
+		return Vec2(y, -x).getNormalized();
 	}
 };
 

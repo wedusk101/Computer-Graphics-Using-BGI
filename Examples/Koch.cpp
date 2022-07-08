@@ -58,34 +58,41 @@ std::vector<Line> getFractalSide(const Line& edge)
 }
 
 // draws each Koch curve of the snowflake
-void drawFractalSide(const std::vector<Line>& edgeList)
+void drawFractal(const std::vector<Line>& edgeList)
 {
-	setcolor(BLACK);
-	line(edgeList[0].dst.x, edgeList[0].dst.y, edgeList[3].src.x, edgeList[3].src.y); // remove split edge from triangle
-	setcolor(WHITE);
-
+	// setcolor(BLACK);
+	// line(edgeList[0].dst.x, edgeList[0].dst.y, edgeList[3].src.x, edgeList[3].src.y); // remove split edge from triangle
+	// setcolor(WHITE);
 	for (const auto& edge : edgeList)
 		edge.draw();
 }
 
-void drawKochSnowflake(const std::vector<Line>& edgeList, int depth, int maxDepth)
+void drawKochSnowflake(std::vector<Line>& fractalEdges, int depth, int maxDepth)
 {
 	if (depth < maxDepth)
 	{
-		// for (const auto& edge : edgeList)
-			// edge.draw();
+		cleardevice();
 
-		std::vector<Line> fractalEdges;
+		// draw the existing fractal edges
+		for (const auto& edge : fractalEdges)
+			edge.draw();
 
-		for (const auto& edge : edgeList)
+		std::vector<Line> newEdges;
+
+		// fractalize each existing edge 
+		for (const auto& edge : fractalEdges)
 		{
-			std::vector<Line> sideList = getFractalSide(edge);
-			drawFractalSide(sideList);
-
-			for (const auto& side : sideList)
-				fractalEdges.push_back(side);
+			std::vector<Line> generatedEdges = getFractalSide(edge);
+			
+			// save each generated edge in a buffer storage
+			for (const auto& edge : generatedEdges)
+				newEdges.push_back(edge);
 		}
+		fractalEdges.clear(); // clear stale edges
+		fractalEdges = newEdges; // update edges with the newly fractalized edges
 
+		cleardevice();
+		drawFractal(fractalEdges);
 		drawKochSnowflake(fractalEdges, depth + 1, maxDepth);
 	}
 }
@@ -102,8 +109,8 @@ int main()
 
 	std::vector<Line> edges;
 	edges.push_back({{ 220, 120 }, { 420, 120 }});
-	edges.push_back({{ 420, 120 }, { 320, 294 }});
-	edges.push_back({{ 320, 294 }, { 220, 120 }});
+	// edges.push_back({{ 420, 120 }, { 320, 294 }});
+	// edges.push_back({{ 320, 294 }, { 220, 120 }});
 
 	drawKochSnowflake(edges, 0, nItr);			
 		
