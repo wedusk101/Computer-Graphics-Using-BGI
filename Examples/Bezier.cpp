@@ -1,4 +1,4 @@
-/*The following program renders Bezier curves in two ways --- using Bernstein polynomials and using de Casteljau's algorithm .*/
+/* The following program renders Bezier curves in two ways --- using Bernstein polynomials and using de Casteljau's algorithm. */
 #include <iostream>
 #include <windows.h>
 #include <cmath>
