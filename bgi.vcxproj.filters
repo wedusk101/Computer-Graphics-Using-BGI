@@ -81,10 +81,13 @@
     <ClCompile Include="Examples\Bezier.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
+    <ClCompile Include="Examples\Sierpinski.cpp">
+      <Filter>Examples</Filter>
+    </ClCompile>
     <ClCompile Include="Examples\Voronoi.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="Examples\Sierpinski.cpp">
+    <ClCompile Include="Examples\Koch.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
   </ItemGroup>
