@@ -1,9 +1,15 @@
-/* The following program renders the Koch Snowflake .*/
+/* 
+	The following program renders the Koch Snowflake using a naive implementation.
+
+	For more information please see https://en.wikipedia.org/wiki/Koch_snowflake
+	
+*/
 
 #include <iostream>
 #include <windows.h>
 #include <cmath>
 #include <vector>
+#include <chrono>
 
 #include "graphics.h"
 #include "colors.h"
@@ -42,7 +48,7 @@ Point getApex(const Point& p1, const Point& p2)
 	return vec2Point(p);
 }
 
-// return a Fractal side for a given edge
+// return a fractal side for a given edge
 std::vector<Line> getFractalSide(const Line& edge)
 {
 	std::vector<Point> splitPoints = trisect(edge);
@@ -60,9 +66,6 @@ std::vector<Line> getFractalSide(const Line& edge)
 // draws each Koch curve of the snowflake
 void drawFractal(const std::vector<Line>& edgeList)
 {
-	// setcolor(BLACK);
-	// line(edgeList[0].dst.x, edgeList[0].dst.y, edgeList[3].src.x, edgeList[3].src.y); // remove split edge from triangle
-	// setcolor(WHITE);
 	for (const auto& edge : edgeList)
 		edge.draw();
 }
@@ -72,11 +75,13 @@ void drawKochSnowflake(std::vector<Line>& fractalEdges, int depth, int maxDepth)
 	if (depth < maxDepth)
 	{
 		cleardevice();
+		std::cout << "Drawing iteration: " << depth + 1 << std::endl;		
 
 		// draw the existing fractal edges
 		for (const auto& edge : fractalEdges)
 			edge.draw();
 
+		delay(500);
 		std::vector<Line> newEdges;
 
 		// fractalize each existing edge 
@@ -92,27 +97,43 @@ void drawKochSnowflake(std::vector<Line>& fractalEdges, int depth, int maxDepth)
 		fractalEdges = newEdges; // update edges with the newly fractalized edges
 
 		cleardevice();
-		drawFractal(fractalEdges);
+		drawFractal(fractalEdges); // draw the newly created fractalized edges
 		drawKochSnowflake(fractalEdges, depth + 1, maxDepth);
 	}
 }
 
 int main()
 {
-	initwindow(640, 480, "Koch Snowflake");
+	initwindow(1000, 1000, "Koch Snowflake");
 	int ch = 0;
 	uint16_t nItr = 0;
 
-	std::cout << "This program renders the Koch Snowflake with animation." << std::endl;
-	std::cout << "Please input the desired number of interations." << std::endl;
-	std::cin >> nItr;
+	while (true)
+	{
+		std::cout << "This program renders the Koch Snowflake with animation." << std::endl;
+		std::cout << "Please input the desired number of interations." << std::endl;
+		std::cin >> nItr;
 
-	std::vector<Line> edges;
-	edges.push_back({{ 220, 120 }, { 420, 120 }});
-	// edges.push_back({{ 420, 120 }, { 320, 294 }});
-	// edges.push_back({{ 320, 294 }, { 220, 120 }});
+		std::vector<Line> edges;
+		edges.push_back({{ 200, 275 }, { 800, 275 }});
+		edges.push_back({{ 800, 275 }, { 500, 795 }});
+		edges.push_back({{ 500, 795 }, { 200, 275 }});
 
-	drawKochSnowflake(edges, 0, nItr);			
+		auto start = std::chrono::high_resolution_clock::now();
+
+		drawKochSnowflake(edges, 0, nItr);
+
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto diff = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+		std::cout << "Time taken is " << diff.count() << " seconds.\n" << std::endl;
+
+		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
+		std::cin >> ch;
+		if (ch == 0)
+			break;
+		std::cout << "\n\n";
+		cleardevice();
+	}
 		
 	std::cout << "Thank you." << std::endl;
 	system("pause"); // windows only feature

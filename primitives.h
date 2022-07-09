@@ -50,11 +50,12 @@ typedef struct
 
 struct Vec2
 {
-	int x;
-	int y;
+	double x;
+	double y;
 
 	Vec2() : x(0), y(0) {}		
-	Vec2(int x_, int y_) : x(x_), y(y_) {} // member initialization list
+	Vec2(int x_, int y_) : x(round(x_)), y(round(y_)) {} // member initialization list
+	Vec2(double x_, double y_) :  x(x_), y(y_) {}
 
 	Vec2 operator+ (const Vec2 &v) const
 	{
