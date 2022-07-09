@@ -154,7 +154,7 @@ int main()
 
 		auto stop = std::chrono::high_resolution_clock::now();
 		auto diff = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-		printf("Time taken is %d seconds.\n", diff.count());
+		printf("Time taken is %d seconds.\n", (int)diff.count());
 		std::cout << "Continue? (1/0)" << std::endl;
 		std::cin >> ch;
 		if (!ch)
