@@ -41,10 +41,10 @@ Point getApex(const Point& p1, const Point& p2)
 	Point mid = getMidpoint(p1, p2);
 	Vec2 o(mid.x, mid.y);
 	double a = dir.getMagnitude(); // get the length of each side of the equilateral triangle
-	double t = 0.86605 * a; // height (h) = (sqrt(3) / 2) * a
+	double h = 0.86605 * a; // height (h) = (sqrt(3) / 2) * a
 
 	Vec2 normal = dir.getNormal();
-	Vec2 p = o + normal * t; // walk h units from the mid point in the direction of the apex
+	Vec2 p = o + normal * h; // walk h units from the mid point in the direction of the apex
 	return vec2Point(p);
 }
 
@@ -114,6 +114,8 @@ int main()
 		std::cout << "Please input the desired number of interations." << std::endl;
 		std::cin >> nItr;
 
+		// hard-coded values for initial vertices
+		// of the parent equilateral triangle
 		std::vector<Line> edges;
 		edges.push_back({{ 200, 275 }, { 800, 275 }});
 		edges.push_back({{ 800, 275 }, { 500, 795 }});
