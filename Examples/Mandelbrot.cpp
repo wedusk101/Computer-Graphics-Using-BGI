@@ -142,8 +142,8 @@ void drawMandelbrot(const int &width, const int &height)
 			}
 			else
 			{
-				setcolor(CYAN);
-				putpixel(x, y, CYAN);
+				setcolor(WHITE);
+				putpixel(x, y, WHITE);
 			}
 		}
 	}
@@ -175,8 +175,8 @@ void drawMandelbrotMT(const int &width, const int &height)
 				}
 				else
 				{
-					setcolor(CYAN);
-					putpixel(x, y, CYAN);
+					setcolor(WHITE);
+					putpixel(x, y, WHITE);
 				}
 			}
 		}
