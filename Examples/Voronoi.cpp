@@ -442,19 +442,31 @@ int main()
 		std::cout << "This program creates a Voronoi parition pattern." << std::endl;
 		std::cout << "How many sites(points) would you like to have on your partition?" << std::endl;
 		std::cin >> maxPoints;
+
 		std::cout << "Please enter the minimum site distance between points(radius)." << std::endl;
 		std::cin >> minSiteDist;
+
 		std::cout << "Drawing the randomly generated points using Poisson disk sampling." << std::endl;
-		std::vector<Point> sites = generateSites(maxPoints, minSiteDist);		
+		std::vector<Point> sites = generateSites(maxPoints, minSiteDist);	
 		std::vector<Triangle> mesh = triangulate(sites);
+		std::cout << mesh.size() << " triangles generated after triangulation." << std::endl;
+
 		std::cout << "Do you want to draw the generated mesh? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch)
+		{
+			std::cout << "Drawing generated mesh." << std::endl;
 			drawMesh(mesh);
-		std::cout << "Do you want to draw the generated Voronoi pattern? (1 = Yes / 0 = No)" << std::endl;
+		}
+
+		std::cout << "Do you want to draw the generated Voronoi partition? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch)
+		{
+			std::cout << "Drawing the generated Voronoi partition." << std::endl;
 			drawVoronoiPattern(mesh);
+		}
+
 		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch == 0)
