@@ -78,6 +78,13 @@ typedef struct Point
 	{
 		return fabs(x - p.x) < EPSILON && fabs(y - p.y) < EPSILON;
 	}
+
+	void draw(uint8_t color) const
+	{
+		// putpixel((int)x, (int)y, YELLOW);
+		setcolor(color);
+		circle((int)x, (int)y, 5);
+	}
 } Point;
 
 typedef struct Edge
@@ -363,7 +370,8 @@ std::vector<Point> generateSites(size_t maxPoints, float radius)
 	float y = rndY(engine);
 	Point site(x, y);
 	siteList.push_back(site);  // add the first point
-	while (siteList.size() <= maxPoints)
+	site.draw(CYAN);
+	while (siteList.size() < maxPoints)
 	{
 		site.x = rndX(engine);
 		site.y = rndY(engine);
@@ -371,10 +379,8 @@ std::vector<Point> generateSites(size_t maxPoints, float radius)
 		// Poisson disk sampling
 		if (isValidPos(site, radius, siteList)) // inefficient rejection sampling
 		{
-			siteList.push_back(site);
-			putpixel((int)site.x, (int)site.y, YELLOW);
-			setcolor(CYAN);
-			circle((int)site.x, (int)site.y, 5);
+			siteList.push_back(site);			
+			site.draw(CYAN);
 		}
 	}
 
