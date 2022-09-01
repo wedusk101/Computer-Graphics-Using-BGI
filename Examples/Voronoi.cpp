@@ -10,37 +10,41 @@
 #include "graphics.h"
 #include "colors.h"
 
-constexpr double EPSILON = 1e-4;
-constexpr double DOUBLE_MIN = std::numeric_limits<double>::lowest();
-constexpr double DOUBLE_MAX = std::numeric_limits<double>::max();
+#define WIDTH 640
+#define HEIGHT 480
+#define PADDING 20
+
+constexpr float EPSILON = 1e-4;
+constexpr float FLOAT_MIN = std::numeric_limits<float>::lowest();
+constexpr float FLOAT_MAX = std::numeric_limits<float>::max();
 static size_t pointCount = 0;
 
 typedef struct Vec2
 {
-	double x;
-	double y;
+	float x;
+	float y;
 
 	Vec2() {}
-	Vec2(double x_, double y_) : x(x_), y(y_) {}
+	Vec2(float x_, float y_) : x(x_), y(y_) {}
 
-	inline Vec2 operator*(double c)
+	inline Vec2 operator*(float c)
 	{
 		return Vec2(x * c, y * c);
 	}
 
-	inline Vec2 operator/(double c)
+	inline Vec2 operator/(float c)
 	{
 		return Vec2(x / c, y / c);
 	}
 
-	inline double getMagnitude() const
+	inline float getMagnitude() const
 	{
 		return sqrt(x * x + y * y);
 	}
 
 	Vec2 getNormalized() const
 	{
-		double mag = getMagnitude();
+		float mag = getMagnitude();
 		if (fabs(mag) < EPSILON)
 			return Vec2();
 		return Vec2(x / mag, y / mag);
@@ -49,13 +53,13 @@ typedef struct Vec2
 
 typedef struct Point
 {
-	double x;
-	double y;
+	float x;
+	float y;
 
 	size_t pointID;
 
-	Point() {}
-	Point(double x_, double y_) : x(x_), y(y_)
+	Point() : x(0.0f), y(0.0f), pointID(0) {}
+	Point(float x_, float y_) : x(x_), y(y_)
 	{
 		pointID = ++pointCount;
 	}
@@ -170,10 +174,10 @@ typedef struct Triangle
 typedef struct Circle
 {
 	Point center;
-	double radius;
+	float radius;
 
-	Circle() {}
-	Circle(const Point &c, double r) : center(c), radius(r) {}
+	Circle() : center(Point()), radius(0.0f) {}
+	Circle(const Point &c, float r) : center(c), radius(r) {}
 
 	void draw(uint8_t color) const
 	{
@@ -182,15 +186,15 @@ typedef struct Circle
 	}
 } Circle;
 
-inline double getEuclideanDist(const Point &p1, const Point &p2)
+inline float getEuclideanDist(const Point &p1, const Point &p2)
 {
 	return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
 
 // used for Possion disk sampling during the generation of sites
-bool isValidPos(const Point &p, const double minRadius, const std::vector<Point> &listPoints)
+bool isValidPos(const Point &p, const float minRadius, const std::vector<Point> &listPoints)
 {
-	for (const auto point : listPoints)
+	for (const auto& point : listPoints)
 		if (getEuclideanDist(p, point) < minRadius)
 			return false;
 	return true;
@@ -202,16 +206,16 @@ inline bool isInsideCircle(const Point &p, const Circle &c)
 }
 
 
-// calculates the intersection between two circles
-bool intersects(const Point &c1, const Point &c2, double radius, Point &p1, Point &p2)
+// calculates the intersection points between two circles of same radii
+bool intersects(const Point &c1, const Point &c2, float radius, Point &p1, Point &p2)
 {
-	double d = getEuclideanDist(c1, c2);
+	float d = getEuclideanDist(c1, c2);
 	if (d >= 2 * radius || fabs(d) < EPSILON)
 		return false;
 	else
 	{		
-		double oc1 = d / 2;
-		double op1 = sqrt(radius * radius - oc1 * oc1);
+		float oc1 = d / 2;
+		float op1 = sqrt(radius * radius - oc1 * oc1);
 		Point o = c1 + ((c2 - c1) * (oc1 / d));
 		Vec2 oc = c1 - o;
 		Vec2 n1 = Vec2(-oc.y, oc.x).getNormalized();
@@ -226,11 +230,11 @@ Circle getCircumCircle(const Triangle &triangle)
 {
 	// triangle.display();
 
-	double x = 0, y = 0, radius = 0, m1 = 0, m2 = 0, c1 = 0, c2 = 0;
-	double num1 = triangle.a.x - triangle.c.x;
-	double den1 = triangle.c.y - triangle.a.y;
-	double num2 = triangle.b.x - triangle.c.x;
-	double den2 = triangle.c.y - triangle.b.y;	
+	float x = 0, y = 0, radius = 0, m1 = 0, m2 = 0, c1 = 0, c2 = 0;
+	float num1 = triangle.a.x - triangle.c.x;
+	float den1 = triangle.c.y - triangle.a.y;
+	float num2 = triangle.b.x - triangle.c.x;
+	float den2 = triangle.c.y - triangle.b.y;	
 
 	if (fabs(num1) < EPSILON && fabs(num2) < EPSILON || fabs(den1) < EPSILON && fabs(den2) < EPSILON)
 	{
@@ -278,9 +282,9 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 {
 	std::vector<Triangle> meshList;
 
-	Triangle superTriangle(Point(DOUBLE_MAX, DOUBLE_MIN),
-						   Point(DOUBLE_MIN, DOUBLE_MAX),
-						   Point(DOUBLE_MAX, DOUBLE_MAX));	
+	Triangle superTriangle(Point(0, 0),
+						   Point(0, 2 * HEIGHT),
+						   Point(2 * WIDTH, 0));	
 
 	meshList.push_back(superTriangle);
 
@@ -294,7 +298,7 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 		for (auto itr = meshList.begin(); itr != meshList.end(); ++itr)
 		{
 			Circle circumCircle = getCircumCircle(*itr);
-			circumCircle.draw(GREEN);
+			// circumCircle.draw(GREEN);
 			if (isInsideCircle(*siteItr, circumCircle))
 				invalidMeshList.push_back(*itr);
 		}
@@ -304,7 +308,7 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 		for (auto &triangle : invalidMeshList)
 		{
 			for (int i = 0; i < 3; i++) // for each edge in each triangle
-			{
+			{	
 				int match = 0;
 				for (const auto &edgeTri : invalidMeshList)
 					if (edgeTri.containsEdge(triangle[i]))
@@ -315,7 +319,7 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 			}
 		}
 
-		// remove double edges by deleting duplicate triangles
+		// remove float edges by deleting duplicate triangles
 		for (const auto &badTriangle : invalidMeshList)
 		{
 			meshList.erase(std::remove_if(meshList.begin(),
@@ -346,30 +350,31 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 	return meshList;
 }
 
-std::vector<Point> generateSites(size_t maxPoints, double radius)
+std::vector<Point> generateSites(size_t maxPoints, float radius)
 {
 	std::vector<Point> siteList;
 	std::random_device r;
 	std::seed_seq seed{r()};
 	std::default_random_engine engine(seed);
-	std::uniform_real_distribution<double> rnd(0, 640);
+	std::uniform_real_distribution<float> rndX(PADDING, WIDTH - PADDING);
+	std::uniform_real_distribution<float> rndY(PADDING, HEIGHT - PADDING);
 
-	double x = rnd(engine);
-	double y = rnd(engine);
-	Point site(x, y); // add the first point
-
-	while (siteList.size() < maxPoints)
+	float x = rndX(engine);
+	float y = rndY(engine);
+	Point site(x, y);
+	siteList.push_back(site);  // add the first point
+	while (siteList.size() <= maxPoints)
 	{
-		site.x = rnd(engine);
-		site.y = rnd(engine);
+		site.x = rndX(engine);
+		site.y = rndY(engine);
 
 		// Poisson disk sampling
 		if (isValidPos(site, radius, siteList)) // inefficient rejection sampling
 		{
 			siteList.push_back(site);
-			putpixel((int)site.x, (int)site.y, LIGHTRED);
+			putpixel((int)site.x, (int)site.y, YELLOW);
 			setcolor(CYAN);
-			circle((int)site.x, (int)site.y, 2);
+			circle((int)site.x, (int)site.y, 5);
 		}
 	}
 
@@ -378,19 +383,14 @@ std::vector<Point> generateSites(size_t maxPoints, double radius)
 
 void drawMesh(const std::vector<Triangle> &meshList)
 {
-	if (meshList.empty())
-		std::cout << "Empty \n";
-
-	for (const auto &triangle : meshList)
-		triangle.draw(LIGHTGREEN);
+	for (const auto& triangle : meshList)
+		triangle.draw(LIGHTRED);
 }
-
-// void drawVoronoi(std::vector<Triangle> &meshList)
 
 int main()
 {
-	initwindow(640, 480, "Voronoi");
-	double minSiteDist = 0;
+	initwindow(WIDTH, HEIGHT, "Voronoi");
+	float minSiteDist = 0;
 	size_t maxPoints = 0, ch = 0;
 
 	while (true)
