@@ -1,3 +1,14 @@
+/*
+	The following program renders the Voronoi diagram. It uses the Delaunay triangulation as an intermediate step.
+	The Delaunay triangulation is implemented using the Bowyer-Watson algorithm.
+
+	For more information please see:
+	
+	- https://en.wikipedia.org/wiki/Voronoi_diagram
+	- https://en.wikipedia.org/wiki/Delaunay_triangulation
+	- https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm
+
+*/
 
 #define NOMINMAX
 
@@ -24,7 +35,7 @@ typedef struct Vec2
 	float x;
 	float y;
 
-	Vec2() {}
+	Vec2() : x(0.0f), y(0.0f) {}
 	Vec2(float x_, float y_) : x(x_), y(y_) {}
 
 	inline Vec2 operator*(float c)
