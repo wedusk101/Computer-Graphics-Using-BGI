@@ -26,8 +26,6 @@
 #define PADDING 20
 
 constexpr float EPSILON = 1e-4;
-constexpr float FLOAT_MIN = std::numeric_limits<float>::lowest();
-constexpr float FLOAT_MAX = std::numeric_limits<float>::max();
 static size_t pointCount = 0;
 
 typedef struct Vec2
@@ -149,9 +147,13 @@ typedef struct Triangle
 		std::cout << "A(" << a.x << ", " << a.y << ")" << "	B(" << b.x << ", " << b.y << ")" << "	C(" << c.x << ", " << c.y << ")" << std::endl;
 	}
 
-	// returns whether two triangles are nighbors of each other
+	// returns whether two triangles are neighbors of each other
 	bool isNeighbor(const Triangle &candidate) const
 	{
+		// ignore self
+		if (*this == candidate)
+			return false;
+
 		int count = 0;
 
 		if (a == candidate.a || a == candidate.b || a == candidate.c)
@@ -161,7 +163,7 @@ typedef struct Triangle
 		if (c == candidate.a || c == candidate.b || c == candidate.c)
 			count++;
 
-		return (count >= 2);
+		return (count == 2);
 	}
 
 	inline bool containsVertex(const Point &v) const
@@ -200,7 +202,7 @@ typedef struct Circle
 	void draw(uint8_t color) const
 	{
 		setcolor(color);
-		circle((int)center.x, (int)center.y, color);
+		circle((int)center.x, (int)center.y, radius);
 	}
 } Circle;
 
@@ -299,7 +301,6 @@ Circle getCircumCircle(const Triangle &triangle)
 std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 {
 	std::vector<Triangle> meshList;
-
 	Triangle superTriangle(Point(0, 0),
 						   Point(0, 2 * HEIGHT),
 						   Point(2 * WIDTH, 0));	
@@ -316,7 +317,6 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 		for (auto itr = meshList.begin(); itr != meshList.end(); ++itr)
 		{
 			Circle circumCircle = getCircumCircle(*itr);
-			// circumCircle.draw(GREEN);
 			if (isInsideCircle(*siteItr, circumCircle))
 				invalidMeshList.push_back(*itr);
 		}
@@ -368,6 +368,9 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 	return meshList;
 }
 
+// this function may be too slow or get stuck in an infinite loop
+// if the number of sites to generate is too high with respect 
+// to the viewport resolution and minimum radius value
 std::vector<Point> generateSites(size_t maxPoints, float radius)
 {
 	std::vector<Point> siteList;
@@ -404,6 +407,30 @@ void drawMesh(const std::vector<Triangle> &meshList)
 		triangle.draw(LIGHTRED);
 }
 
+/**
+	The Vorornoi pattern is the dual graph of the Delaunay triangulation.
+	This function generates the resulting Voronoi pettern from the input
+	Delaunay triangulated mesh.
+*/
+void drawVoronoiPattern(const std::vector<Triangle>& mesh)
+{
+	for (size_t i = 0; i < mesh.size(); ++i)
+	{
+		Circle circumCircle = getCircumCircle(mesh[i]);
+		for (size_t j = 0; j < mesh.size(); ++j)
+		{
+			if (mesh[i].isNeighbor(mesh[j]))
+			{
+				Circle circumCircleNeighbor = getCircumCircle(mesh[j]);
+				// circumCircle.draw(GREEN); // for debugging
+				// circumCircleNeighbor.draw(LIGHTBLUE); // for debugging
+				setcolor(YELLOW);
+				line(circumCircle.center.x, circumCircle.center.y, circumCircleNeighbor.center.x, circumCircleNeighbor.center.y);
+			}
+		}
+	}
+}
+
 int main()
 {
 	initwindow(WIDTH, HEIGHT, "Voronoi");
@@ -417,9 +444,17 @@ int main()
 		std::cin >> maxPoints;
 		std::cout << "Please enter the minimum site distance between points(radius)." << std::endl;
 		std::cin >> minSiteDist;
-		std::vector<Point> sites = generateSites(maxPoints, minSiteDist);
+		std::cout << "Drawing the randomly generated points using Poisson disk sampling." << std::endl;
+		std::vector<Point> sites = generateSites(maxPoints, minSiteDist);		
 		std::vector<Triangle> mesh = triangulate(sites);
-		drawMesh(mesh);
+		std::cout << "Do you want to draw the generated mesh? (1 = Yes / 0 = No)" << std::endl;
+		std::cin >> ch;
+		if (ch)
+			drawMesh(mesh);
+		std::cout << "Do you want to draw the generated Voronoi pattern? (1 = Yes / 0 = No)" << std::endl;
+		std::cin >> ch;
+		if (ch)
+			drawVoronoiPattern(mesh);
 		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch == 0)
@@ -427,39 +462,6 @@ int main()
 		std::cout << "\n\n";
 		cleardevice();
 	}
-
-	/*
-
-	// test getCircumCircle()
-
-	while (true)
-	{
-		Point p1, p2, p3;
-		std::cout << "Enter 3 points." << std::endl;
-		std::cin >> p1.x >> p1.y >> p2.x >> p2.y >> p3.x >> p3.y;
-		setcolor(CYAN);
-		circle((int)p1.x, (int)p1.y, 5);
-		circle((int)p2.x, (int)p2.y, 5);
-		circle((int)p3.x, (int)p3.y, 5);
-		Triangle t(p1, p2, p3);
-		Circle c = getCircumCircle(t);
-		putpixel(p1.x, p1.y, RED);
-		putpixel(p2.x, p2.y, RED);
-		putpixel(p3.x, p3.y, RED);
-		setcolor(CYAN);
-		circle((int)c.center.x, (int)c.center.y, 2);
-		setcolor(YELLOW);		
-		circle((int)c.center.x, (int)c.center.y, (int)c.radius);
-		std::cout << "Center: (" << c.center.x << ", " << c.center.y << ")" << "\nRadius: " << c.radius << std::endl;
-		std::cout << "Continue? (1 = Yes / 0 = No)" << std::endl;
-		std::cin >> ch;
-		if (ch == 0)
-			break;
-		std::cout << "\n\n";
-		cleardevice();
-	}
-
-	*/
 
 	std::cout << "Thank you." << std::endl;
 	system("pause");
