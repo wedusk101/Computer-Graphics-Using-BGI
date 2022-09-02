@@ -18,6 +18,7 @@
 #include <vector>
 #include <limits>
 #include <algorithm>
+#include <chrono>
 #include "graphics.h"
 #include "colors.h"
 
@@ -148,7 +149,7 @@ typedef struct Triangle
 	}
 
 	// returns whether two triangles are neighbors of each other
-	bool isNeighbor(const Triangle &candidate) const
+	bool isNeighborOf(const Triangle &candidate) const
 	{
 		// ignore self
 		if (*this == candidate)
@@ -225,6 +226,7 @@ inline bool isInsideCircle(const Point &p, const Circle &c)
 	return getEuclideanDist(p, c.center) < c.radius;
 }
 
+/*
 
 // calculates the intersection points between two circles of same radii
 bool intersects(const Point &c1, const Point &c2, float radius, Point &p1, Point &p2)
@@ -245,6 +247,8 @@ bool intersects(const Point &c1, const Point &c2, float radius, Point &p1, Point
 		return true;
 	}
 }
+
+*/
 
 Circle getCircumCircle(const Triangle &triangle)
 {
@@ -371,7 +375,7 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 // this function may be too slow or get stuck in an infinite loop
 // if the number of sites to generate is too high with respect 
 // to the viewport resolution and minimum radius value
-std::vector<Point> generateSites(size_t maxPoints, float radius)
+std::vector<Point> generateSites(size_t maxPoints, float radius, int* errorState)
 {
 	std::vector<Point> siteList;
 	std::random_device r;
@@ -385,8 +389,40 @@ std::vector<Point> generateSites(size_t maxPoints, float radius)
 	Point site(x, y);
 	siteList.push_back(site);  // add the first point
 	site.draw(CYAN);
+
+	int ch = 0;
+
+	auto start = std::chrono::high_resolution_clock::now();
 	while (siteList.size() < maxPoints)
 	{
+		auto now = std::chrono::high_resolution_clock::now();
+		auto duration = std::chrono::duration_cast<std::chrono::seconds>(now - start);
+
+		if (duration.count() > 10)
+		{
+			std::cout << "\nGenerating points seems to be taking too long." << std::endl;
+			std::cout << "This maybe because of an invalid combination of the number of sites "
+					  << "to generate and minimum radius between them." << std::endl;
+			std::cout << "Would you like to stop and try again with new input parameters?" << std::endl;
+			std::cout << "0 = Quit | 1 = Try again | 2 = Wait a little longer (will be prompted again in another 10 seconds)" << std::endl;
+			std::cin >> ch;
+
+			if (ch == 0)
+				*errorState = -1;
+
+			if (ch == 1)
+				*errorState = 1;
+
+			if (ch == 2)
+			{
+				start = std::chrono::high_resolution_clock::now();
+				std::cout << "Waiting for another 10 seconds for site generation to complete..." << std::endl;
+				continue;
+			}
+
+			return siteList;
+		}
+
 		site.x = rndX(engine);
 		site.y = rndY(engine);
 
@@ -398,6 +434,7 @@ std::vector<Point> generateSites(size_t maxPoints, float radius)
 		}
 	}
 
+	*errorState = 0;
 	return siteList;
 }
 
@@ -419,7 +456,7 @@ void drawVoronoiPattern(const std::vector<Triangle>& mesh)
 		Circle circumCircle = getCircumCircle(mesh[i]);
 		for (size_t j = 0; j < mesh.size(); ++j)
 		{
-			if (mesh[i].isNeighbor(mesh[j]))
+			if (mesh[i].isNeighborOf(mesh[j]))
 			{
 				Circle circumCircleNeighbor = getCircumCircle(mesh[j]);
 				// circumCircle.draw(GREEN); // for debugging
@@ -431,23 +468,53 @@ void drawVoronoiPattern(const std::vector<Triangle>& mesh)
 	}
 }
 
+// has basic input validation for negative values
+// does not consider other invalid input like characters
 int main()
 {
 	initwindow(WIDTH, HEIGHT, "Voronoi");
 	float minSiteDist = 0;
 	size_t maxPoints = 0, ch = 0;
+	int error = 0, input = 0;
 
 	while (true)
 	{
 		std::cout << "This program creates a Voronoi parition pattern." << std::endl;
-		std::cout << "How many sites(points) would you like to have on your partition?" << std::endl;
-		std::cin >> maxPoints;
+		std::cout << "How many sites (points) would you like to have on your partition?" << std::endl;
+		std::cin >> input;
+
+		if (input < 0)
+		{
+			std::cout << "Invalid input. Try again." << std::endl;
+			continue;
+		}
+
+		maxPoints = input;
 
 		std::cout << "Please enter the minimum site distance between points(radius)." << std::endl;
-		std::cin >> minSiteDist;
+		std::cin >> input;
 
-		std::cout << "Drawing the randomly generated points using Poisson disk sampling." << std::endl;
-		std::vector<Point> sites = generateSites(maxPoints, minSiteDist);	
+		if (input < 0)
+		{
+			std::cout << "Invalid input. Try again." << std::endl;
+			continue;
+		}
+
+		minSiteDist = input;
+
+		std::cout << "Generating random points using Poisson disk sampling." << std::endl;
+		std::vector<Point> sites = generateSites(maxPoints, minSiteDist, &error);	
+
+		if (error == 1)
+		{
+			error = 0;
+			cleardevice();
+			continue;
+		}
+
+		if (error == -1)
+			break;
+
 		std::vector<Triangle> mesh = triangulate(sites);
 		std::cout << mesh.size() << " triangles generated after triangulation." << std::endl;
 
