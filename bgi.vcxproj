@@ -60,6 +60,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OpenMPSupport>true</OpenMPSupport>
       <AdditionalIncludeDirectories>C:\Users\navon\Documents\GitHub\Computer-Graphics-Using-BGI;C:\Users\navon\Documents\GitHub\Computer-Graphics-Using-BGI\Examples;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -26,40 +26,10 @@
 #define HEIGHT 480
 #define PADDING 20
 
+// #define NDEBUG
+
 constexpr float EPSILON = 1e-4;
 static size_t pointCount = 0;
-
-typedef struct Vec2
-{
-	float x;
-	float y;
-
-	Vec2() : x(0.0f), y(0.0f) {}
-	Vec2(float x_, float y_) : x(x_), y(y_) {}
-
-	inline Vec2 operator*(float c)
-	{
-		return Vec2(x * c, y * c);
-	}
-
-	inline Vec2 operator/(float c)
-	{
-		return Vec2(x / c, y / c);
-	}
-
-	inline float getMagnitude() const
-	{
-		return sqrt(x * x + y * y);
-	}
-
-	Vec2 getNormalized() const
-	{
-		float mag = getMagnitude();
-		if (fabs(mag) < EPSILON)
-			return Vec2();
-		return Vec2(x / mag, y / mag);
-	}
-} Vec2;
 
 typedef struct Point
 {
@@ -72,16 +42,6 @@ typedef struct Point
 	Point(float x_, float y_) : x(x_), y(y_)
 	{
 		pointID = ++pointCount;
-	}
-
-	inline Vec2 operator-(const Point &p) const
-	{
-		return Vec2(x - p.x, y - p.y);
-	}
-
-	inline Point operator+(const Vec2 &v) const
-	{
-		return Point(x + v.x, y + v.y);
 	}
 
 	inline bool operator==(const Point &p) const
@@ -109,12 +69,6 @@ typedef struct Edge
 		return (src == e.src && dst == e.dst) || (dst == e.src && src == e.dst);
 	}
 } Edge;
-
-typedef struct Cell
-{
-	Point site;
-	std::vector<Edge> boundaryList;
-} Cell;
 
 typedef struct Triangle
 {
@@ -459,8 +413,11 @@ void drawVoronoiPattern(const std::vector<Triangle>& mesh)
 			if (mesh[i].isNeighborOf(mesh[j]))
 			{
 				Circle circumCircleNeighbor = getCircumCircle(mesh[j]);
-				// circumCircle.draw(GREEN); // for debugging
-				// circumCircleNeighbor.draw(LIGHTBLUE); // for debugging
+
+#ifndef NDEBUG
+				circumCircle.draw(LIGHTBLUE); // for debugging
+				circumCircleNeighbor.draw(LIGHTBLUE); // for debugging
+#endif
 				setcolor(YELLOW);
 				line(circumCircle.center.x, circumCircle.center.y, circumCircleNeighbor.center.x, circumCircleNeighbor.center.y);
 			}
@@ -479,7 +436,13 @@ int main()
 
 	while (true)
 	{
-		std::cout << "This program creates a Voronoi parition pattern." << std::endl;
+
+#ifndef NDEBUG
+		std::cout << "Running in DEBUG mode..." << std::endl;		
+		std::cout << "Circumcircles will be visible in renders." << std::endl;
+		std::cout << "Compile in RELEASE mode to remove them.\n" << std::endl;
+#endif
+		std::cout << "This program creates a Voronoi partition pattern." << std::endl;
 		std::cout << "How many sites (points) would you like to have on your partition?" << std::endl;
 		std::cin >> input;
 
