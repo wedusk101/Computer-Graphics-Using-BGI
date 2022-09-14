@@ -295,7 +295,7 @@ std::vector<Triangle> triangulate(const std::vector<Point> &siteList)
 			}
 		}
 
-		// remove float edges by deleting duplicate triangles
+		// remove double counted edges by deleting duplicate triangles
 		for (const auto &badTriangle : invalidMeshList)
 		{
 			meshList.erase(std::remove_if(meshList.begin(),
