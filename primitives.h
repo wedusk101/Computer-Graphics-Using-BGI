@@ -3,6 +3,7 @@
 #define PRIMITIVES__H_
 
 #include <cmath>
+#include "graphics.h"
 
 struct Point
 {
