@@ -67,6 +67,9 @@ std::vector<Line> getMortonCurveSegments(std::vector<MortonCodeData>& codeList)
 			return a.mortonCode < b.mortonCode;
 		});
 
+	for (const auto& code : codeList)
+		std::cout << "Code: " << code.mortonCode << " (x,y): " << code.point.x << " " << code.point.y << std::endl;
+
 	std::vector<Line> curveSegments;
 
 	for (int i = 0; i < codeList.size() - 1; ++i)
@@ -100,11 +103,9 @@ void drawMortonCurve(const std::vector<Line>& segmentList)
 
 int main()
 {
-	initwindow(WIDTH, HEIGHT, "Voronoi");
+	initwindow(WIDTH, HEIGHT, "Morton Curve");
 	const uint32_t gridSize = 800;
 	std::cout << "This program displays the Morton space-filling curve, also known as the Z-order curve." << std::endl;
-	// std::cout << "Please enter a positive integer value for the grid size." << std::endl;
-	// std::cin >> gridSize;
 
 	drawGrid(gridSize);
 	std::vector<Line> curveList = getMortonCurveSegments(getMortonCodes(gridSize));
