@@ -19,7 +19,8 @@
 
 struct MortonCodeData
 {
-	Point point;
+	Point pixelCoordinate;
+	Point zOrderCoordinate;
 	uint32_t mortonCode;
 };
 
@@ -43,18 +44,20 @@ std::vector<MortonCodeData> getMortonCodes(uint32_t max)
 {
 	std::vector<MortonCodeData> codeList;
 
-	for (uint32_t y = originY; y <= max; y += 100)
+	for (uint32_t y = originY, j = 0; y <= max; y += 100, ++j)
 	{
-		for (uint32_t x = originX; x <= max; x += 100)
+		for (uint32_t x = originX, i = 0; x <= max; x += 100, ++i)
 		{
 			MortonCodeData mc;
-			mc.point = Point(x + 50, y + 50);
+			mc.pixelCoordinate = Point(x + 50, y + 50);
+			mc.zOrderCoordinate = Point(i, j);
 			codeList.push_back(mc);
 		}
 	}
 
 	for (auto& mc : codeList)
-		mc.mortonCode = encodeMorton2((uint16_t)mc.point.x, (uint16_t)mc.point.y);
+		mc.mortonCode = encodeMorton2((uint16_t)mc.zOrderCoordinate.x,
+			                          (uint16_t)mc.zOrderCoordinate.y);
 
 	return codeList;
 }
@@ -68,13 +71,17 @@ std::vector<Line> getMortonCurveSegments(std::vector<MortonCodeData>& codeList)
 		});
 
 	for (const auto& code : codeList)
-		std::cout << "Code: " << code.mortonCode << " (x,y): " << code.point.x << " " << code.point.y << std::endl;
+	{
+		std::cout << "Morton Code: "           << code.mortonCode         <<
+			         " Z-order Coordinates: (" << code.zOrderCoordinate.x << ", " << code.zOrderCoordinate.y << ")" <<
+			         " Pixel Coordinates: ("   << code.pixelCoordinate.x  << ", " << code.pixelCoordinate.y  << ")" <<std::endl;
+	}
 
 	std::vector<Line> curveSegments;
 
 	for (int i = 0; i < codeList.size() - 1; ++i)
 	{
-		Line segment(codeList[i].point, codeList[i + 1].point);
+		Line segment(codeList[i].pixelCoordinate, codeList[i + 1].pixelCoordinate);
 		curveSegments.push_back(segment);
 	}
 
@@ -108,7 +115,8 @@ int main()
 	std::cout << "This program displays the Morton space-filling curve, also known as the Z-order curve." << std::endl;
 
 	drawGrid(gridSize);
-	std::vector<Line> curveList = getMortonCurveSegments(getMortonCodes(gridSize));
+	std::vector<MortonCodeData> codeList = getMortonCodes(gridSize);
+	std::vector<Line> curveList = getMortonCurveSegments(codeList);
 	drawMortonCurve(curveList);
 
 	system("pause");
