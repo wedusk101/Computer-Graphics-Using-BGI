@@ -12,10 +12,12 @@
 
 #include "primitives.h"
 
+// changing these hard-coded values will break the output
 #define WIDTH 1000
 #define HEIGHT 1000
 #define originX 100
 #define originY 100
+#define CELL_SIZE 25
 
 struct MortonCodeData
 {
@@ -44,12 +46,12 @@ std::vector<MortonCodeData> getMortonCodes(uint32_t max)
 {
 	std::vector<MortonCodeData> codeList;
 
-	for (uint32_t y = originY, j = 0; y <= max; y += 100, ++j)
+	for (uint32_t y = originY, j = 0; y <= max + 3 * CELL_SIZE; y += CELL_SIZE, ++j)
 	{
-		for (uint32_t x = originX, i = 0; x <= max; x += 100, ++i)
+		for (uint32_t x = originX, i = 0; x <= max + 3 * CELL_SIZE; x += CELL_SIZE, ++i)
 		{
 			MortonCodeData mc;
-			mc.pixelCoordinate = Point(x + 50, y + 50);
+			mc.pixelCoordinate = Point(x + (CELL_SIZE / 2), y + (CELL_SIZE / 2));
 			mc.zOrderCoordinate = Point(i, j);
 			codeList.push_back(mc);
 		}
@@ -90,12 +92,12 @@ std::vector<Line> getMortonCurveSegments(std::vector<MortonCodeData>& codeList)
 
 void drawGrid(uint32_t size)
 {
-	for (int x = originX; x <= originX + size; x += 100)
+	for (int x = originX; x <= originX + size; x += CELL_SIZE)
 	{
 		line(x, originY, x, originY + size);
 	}
 
-	for (int y = originY; y <= originY + size; y += 100)
+	for (int y = originY; y <= originY + size; y += CELL_SIZE)
 	{
 		line(originX, y, originX + size, y);
 	}
