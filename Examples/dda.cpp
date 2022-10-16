@@ -59,7 +59,6 @@ void dda(Point start, Point end)
 				putpixel((int)x, (int)y, 12);
 			}
 		}
-
 		else // steep slope
 		{
 			if (start.y > end.y) // swaps the starting point if needed
