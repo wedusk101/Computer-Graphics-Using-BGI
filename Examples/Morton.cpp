@@ -92,15 +92,23 @@ std::vector<Line> getMortonCurveSegments(std::vector<MortonCodeData>& codeList)
 
 void drawGrid(uint32_t size)
 {
+	// draw vertical lines
 	for (int x = originX; x <= originX + size; x += CELL_SIZE)
 	{
 		line(x, originY, x, originY + size);
 	}
 
+	// draw horizontal lines
 	for (int y = originY; y <= originY + size; y += CELL_SIZE)
 	{
 		line(originX, y, originX + size, y);
 	}
+
+	// draw outer box only
+	// line(originX, originY, originX, originY + size);
+	// line(originX, originY, originX + size, originY);
+	// line(originX, originY + size, originX + size, originY + size);
+	// line(originX + size, originY, originX + size, originY + size);
 }
 
 void drawMortonCurve(const std::vector<Line>& segmentList)
