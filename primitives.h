@@ -53,7 +53,7 @@ struct Vec2
 
 	float dot(const Vec2 &v) const
 	{
-		return ((float)x * (float)v.x) + ((float)y * (float)v.y);
+		return (x * v.x) + (y * v.y);
 	}
 
 	Vec2 getNormalized() const
@@ -119,8 +119,8 @@ inline Point vec2Point(const Vec2& v)
 inline Point getMidpoint(const Point& p1, const Point& p2)
 {
 	Point out = {};
-	out.x = static_cast<int>(round(0.5 * ((float)p1.x + (float)p2.x)));
-	out.y = static_cast<int>(round(0.5 * ((float)p1.y + (float)p2.y)));
+	out.x = static_cast<int>(round(0.5 * (p1.x + p2.x)));
+	out.y = static_cast<int>(round(0.5 * (p1.y + p2.y)));
 	return out;
 }
 
