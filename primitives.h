@@ -5,6 +5,76 @@
 #include <cmath>
 #include "graphics.h"
 
+struct Vec2
+{
+	float x;
+	float y;
+
+	Vec2() : x(0), y(0) {}		
+	Vec2(int x_, int y_) : x(round(x_)), y(round(y_)) {} // member initialization list
+	Vec2(float x_, float y_) :  x(x_), y(y_) {}
+
+	Vec2 operator+ (const Vec2 &v) const
+	{
+		Vec2 result;
+		result.x = x + v.x;
+		result.y = y + v.y;
+		return result;
+	}
+
+	Vec2 operator- (const Vec2 &v) const
+	{
+		Vec2 result;
+		result.x = x - v.x;
+		result.y = y - v.y;
+		return result;
+	}
+
+	Vec2 operator* (const float &c) const // scalar multiplication
+	{
+		Vec2 result;
+		result.x = x * c;
+		result.y = y * c;
+		return result;
+	}
+
+	Vec2 operator/ (const float &c) const // scalar division
+	{
+		Vec2 result;
+		result.x = x / c;
+		result.y = y / c;
+		return result;
+	}
+
+	float getMagnitude() const
+	{
+		return sqrt(x * x + y * y);
+	}
+
+	float dot(const Vec2 &v) const
+	{
+		return ((float)x * (float)v.x) + ((float)y * (float)v.y);
+	}
+
+	Vec2 getNormalized() const
+	{
+		Vec2 result;
+		float mag = this->getMagnitude();
+
+		if (mag > 0)
+		{
+			result.x = x / mag;
+			result.y = y / mag;
+		}
+		return result;
+	}
+
+	Vec2 getNormal() // returns the outward unit normal vector to a given vector following the left to right convention (counter-clockwise rotation)
+	{
+		return Vec2(y, -x).getNormalized();
+	}
+};
+
 struct Point
 {
 	int x;
@@ -12,13 +82,45 @@ struct Point
 
 	Point() : x(0), y(0) {}
 	Point(const int &x_, const int &y_) : x(x_), y(y_) {}
+
+	Point(const Point&) = default;
+
+	Point operator+(const Point& p)
+	{
+		return Point(x + p.x, y + p.y);
+	}
+
+	Point operator*(int c)
+	{
+		return Point(x * c, y * c);
+	}
+
+	Point operator=(const Point& p) const
+	{
+		return Point(x + p.x, y + p.y);
+	}
+
+	Vec2 operator-(const Point& p) const
+	{
+		return Vec2(x - p.x, y - p.y);
+	}
 };
 
-Point getMidpoint(const Point& p1, const Point& p2)
+inline Vec2 points2Vec(const Point& src, const Point& dst) // returns a vector from a source point towards a destination point
+{
+	return Vec2(dst.x - src.x, dst.y - src.y);
+}
+
+inline Point vec2Point(const Vec2& v)
+{
+	return Point(static_cast<int>(round(v.x)), static_cast<int>(round(v.y)));
+}
+
+inline Point getMidpoint(const Point& p1, const Point& p2)
 {
 	Point out = {};
-	out.x = static_cast<int>(round(0.5 * ((double)p1.x + (double)p2.x)));
-	out.y = static_cast<int>(round(0.5 * ((double)p1.y + (double)p2.y)));
+	out.x = static_cast<int>(round(0.5 * ((float)p1.x + (float)p2.x)));
+	out.y = static_cast<int>(round(0.5 * ((float)p1.y + (float)p2.y)));
 	return out;
 }
 
@@ -49,84 +151,17 @@ typedef struct
 	Point c;
 } Triangle;
 
-struct Vec2
+struct Ray
 {
-	double x;
-	double y;
+	Ray(const Point& o_, const Vec2& d_) : o(o_), d(d_) {}
 
-	Vec2() : x(0), y(0) {}		
-	Vec2(int x_, int y_) : x(round(x_)), y(round(y_)) {} // member initialization list
-	Vec2(double x_, double y_) :  x(x_), y(y_) {}
-
-	Vec2 operator+ (const Vec2 &v) const
+	Point getPointAt(float t)
 	{
-		Vec2 result;
-		result.x = x + v.x;
-		result.y = y + v.y;
-		return result;
+		return o + vec2Point(d) * t;
 	}
 
-	Vec2 operator- (const Vec2 &v) const
-	{
-		Vec2 result;
-		result.x = x - v.x;
-		result.y = y - v.y;
-		return result;
-	}
-
-	Vec2 operator* (const double &c) const // scalar multiplication
-	{
-		Vec2 result;
-		result.x = x * c;
-		result.y = y * c;
-		return result;
-	}
-
-	Vec2 operator/ (const double &c) const // scalar division
-	{
-		Vec2 result;
-		result.x = x / c;
-		result.y = y / c;
-		return result;
-	}
-
-	double getMagnitude() const
-	{
-		return sqrt(x * x + y * y);
-	}
-
-	double dot(const Vec2 &v) const
-	{
-		return ((double)x * (double)v.x) + ((double)y * (double)v.y);
-	}
-
-	Vec2 getNormalized() const
-	{
-		Vec2 result;
-		double mag = this->getMagnitude();
-
-		if (mag > 0)
-		{
-			result.x = x / mag;
-			result.y = y / mag;
-		}
-		return result;
-	}
-
-	Vec2 getNormal() // returns the outward unit normal vector to a given vector following the left to right convention (counter-clockwise rotation)
-	{
-		return Vec2(y, -x).getNormalized();
-	}
+	Point o;
+	Vec2 d;
 };
-
-Vec2 points2Vec(const Point &src, const Point &dst) // returns a vector from a source point towards a destination point
-{
-	return Vec2(dst.x - src.x, dst.y - src.y);
-}
-
-Point vec2Point(const Vec2 &v)
-{
-	return Point(static_cast<int>(round(v.x)), static_cast<int>(round(v.y)));
-}
 
 #endif

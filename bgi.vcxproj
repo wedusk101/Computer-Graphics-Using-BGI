@@ -121,6 +121,7 @@
     </ClCompile>
     <ClCompile Include="Examples\Morton.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Examples\Sierpinski.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -135,6 +136,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="file.cxx" />
+    <ClCompile Include="mathutils.cpp" />
     <ClCompile Include="misc.cxx" />
     <ClCompile Include="mouse.cxx" />
     <ClCompile Include="palette.cxx" />
@@ -147,6 +149,7 @@
     <ClInclude Include="colors.h" />
     <ClInclude Include="dibutil.h" />
     <ClInclude Include="graphics.h" />
+    <ClInclude Include="mathutils.h" />
     <ClInclude Include="primitives.h" />
     <ClInclude Include="winbgi.h" />
     <ClInclude Include="winbgim.h" />
