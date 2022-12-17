@@ -2,7 +2,7 @@
 
 void rotatePoint(Point& p, const float& theta, const int& pivotX, const int& pivotY)
 {
-	Point bak = p;
+	Point bak(p);
 	p.x = static_cast<int>(pivotX + (bak.x - pivotX) * cos(theta) - (bak.y - pivotY) * sin(theta));
 	p.y = static_cast<int>(pivotY + (bak.x - pivotX) * sin(theta) + (bak.y - pivotY) * cos(theta));
 }
@@ -34,7 +34,7 @@ Point getTranslatedPoint(const Point& p, const int& tx, const int& ty)
 	return translatedPoint;
 }
 
-Point getRotatedPoint(const Point& p, const double& theta, const int& pivotX, const int& pivotY)
+Point getRotatedPoint(const Point& p, const float& theta, const int& pivotX, const int& pivotY)
 {
 	Point rotatedPoint;
 	rotatedPoint.x = static_cast<int>(pivotX + (p.x - pivotX) * cos(theta) - (p.y - pivotY) * sin(theta));

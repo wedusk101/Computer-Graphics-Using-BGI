@@ -10,6 +10,6 @@ void scaleRay(Point&, const int&, const int&); // scales a point P(x,y) by sx an
 void shearRay(Point&, const int&, const int&); // shears a point P(x,y) by shX and shY
 
 Point getTranslatedPoint(const Point&, const int&, const int&); // returns a point P(x,y) translated by tx and ty
-Point getRotatedPoint(const Point&, const double&, const int&, const int&); // rotates a ray about a given pivot by an angle of theta radians
+Point getRotatedPoint(const Point&, const float&, const int&, const int&); // rotates a point about a given pivot by an angle of theta radians
 
 #endif // MATH_UTILS_H__

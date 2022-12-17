@@ -15,11 +15,9 @@ void drawFractalCanopy(const Point& src, const Point& dst, int depth, int maxDep
 
 	const Vec2 dir = (dst - src).getNormalized();
 	Ray rootRay(dst, dir);
-	Point rightRoot = rootRay.getPointAt(d);
-	Point leftRoot(rightRoot);
 
-	rotatePoint(rightRoot, angle, dst.x, dst.y);
-	rotatePoint(leftRoot, -angle, dst.x, dst.y);
+	Point rightRoot = getRotatedPoint(rootRay.getPointAt(d), angle, dst.x, dst.y);
+	Point leftRoot = getRotatedPoint(rootRay.getPointAt(d), -angle, dst.x, dst.y);
 
 	Line rightBranch(dst, rightRoot);
 	Line leftBranch(dst, leftRoot);
@@ -33,7 +31,6 @@ void drawFractalCanopy(const Point& src, const Point& dst, int depth, int maxDep
 
 int main()
 {
-	initwindow(WIDTH, HEIGHT, "Voronoi");
 	int maxDepth = 1;
 	float angle = 0.0f;
 
@@ -42,6 +39,8 @@ int main()
 	std::cin >> maxDepth;
 	std::cout << "Please enter the angle of the rotation to be used for the fractal." << std::endl;
 	std::cin >> angle;
+
+	initwindow(WIDTH, HEIGHT, "Voronoi");
 
 	Point src(0.5 * WIDTH, 0.9 * HEIGHT);
 	Point dst(0.5 * WIDTH, 0.65 * HEIGHT);
