@@ -31,7 +31,7 @@
 constexpr float EPSILON = 1e-4;
 static size_t pointCount = 0;
 
-typedef struct Point
+struct Point
 {
 	float x;
 	float y;
@@ -44,7 +44,7 @@ typedef struct Point
 		pointID = ++pointCount;
 	}
 
-	inline bool operator==(const Point &p) const
+	inline bool operator==(const Point& p) const
 	{
 		return fabs(x - p.x) < EPSILON && fabs(y - p.y) < EPSILON;
 	}
@@ -55,22 +55,22 @@ typedef struct Point
 		setcolor(color);
 		circle((int)x, (int)y, 5);
 	}
-} Point;
+};
 
-typedef struct Edge
+struct Edge
 {
 	Point src;
 	Point dst;
 
-	Edge(const Point &s_, const Point &d_) : src(s_), dst(d_) {}
+	Edge(const Point& s_, const Point& d_) : src(s_), dst(d_) {}
 
-	inline bool operator==(const Edge &e) const
+	inline bool operator==(const Edge& e) const
 	{
 		return (src == e.src && dst == e.dst) || (dst == e.src && src == e.dst);
 	}
-} Edge;
+};
 
-typedef struct Triangle
+struct Triangle
 {
 	Point a;
 	Point b;
@@ -144,22 +144,22 @@ typedef struct Triangle
 
 		return (cond1 || cond2 || cond3 || cond4 || cond5 || cond6);
 	}
-} Triangle;
+};
 
-typedef struct Circle
+struct Circle
 {
 	Point center;
 	float radius;
 
 	Circle() : center(Point()), radius(0.0f) {}
-	Circle(const Point &c, float r) : center(c), radius(r) {}
+	Circle(const Point& c, float r) : center(c), radius(r) {}
 
 	void draw(uint8_t color) const
 	{
 		setcolor(color);
 		circle((int)center.x, (int)center.y, radius);
 	}
-} Circle;
+};
 
 inline float getEuclideanDist(const Point &p1, const Point &p2)
 {

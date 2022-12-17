@@ -46,12 +46,12 @@ struct Vec2
 		return result;
 	}
 
-	float getMagnitude() const
+	inline float getMagnitude() const
 	{
 		return sqrt(x * x + y * y);
 	}
 
-	float dot(const Vec2 &v) const
+	inline float dot(const Vec2 &v) const
 	{
 		return (x * v.x) + (y * v.y);
 	}
@@ -69,7 +69,7 @@ struct Vec2
 		return result;
 	}
 
-	Vec2 getNormal() // returns the outward unit normal vector to a given vector following the left to right convention (counter-clockwise rotation)
+	inline Vec2 getNormal() // returns the outward unit normal vector to a given vector following the left to right convention (counter-clockwise rotation)
 	{
 		return Vec2(y, -x).getNormalized();
 	}
