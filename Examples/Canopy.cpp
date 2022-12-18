@@ -39,18 +39,18 @@ int main()
 	std::cin >> maxDepth;
 	std::cout << "Please enter the angle of the rotation to be used for the fractal." << std::endl;
 	std::cin >> angle;
-
-	initwindow(WIDTH, HEIGHT, "Voronoi");
+		
+	initwindow(WIDTH, HEIGHT, "Canopy");
 
 	Point src(0.5 * WIDTH, 0.9 * HEIGHT);
-	Point dst(0.5 * WIDTH, 0.7 * HEIGHT);
+	Point dst(0.5 * WIDTH, 0.6 * HEIGHT);
 
 	float d = (src - dst).getMagnitude();
 
 	Line root(src, dst);
 	root.draw();
 
-	drawFractalCanopy(src, dst, 0, maxDepth, degreesToRadians(angle), d);
+	drawFractalCanopy(src, dst, 0, maxDepth, degreesToRadians(angle), DECAY * d);
 
 	system("pause");
 	closegraph();
