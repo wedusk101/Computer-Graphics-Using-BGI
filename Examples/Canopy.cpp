@@ -39,7 +39,7 @@ int main()
 	std::cin >> maxDepth;
 	std::cout << "Please enter the angle of the rotation to be used for the fractal." << std::endl;
 	std::cin >> angle;
-		
+
 	initwindow(WIDTH, HEIGHT, "Canopy");
 
 	Point src(0.5 * WIDTH, 0.9 * HEIGHT);
