@@ -8,6 +8,8 @@
 	- https://en.wikipedia.org/wiki/Delaunay_triangulation
 	- https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm
 
+	NOTE: This is a crude reference implementation with bugs. For example, the code breaks for very
+	low number of sites.
 */
 
 #define NOMINMAX
