@@ -430,7 +430,7 @@ void drawVoronoiPattern(const std::vector<Triangle>& mesh)
 int main()
 {
 	initwindow(WIDTH, HEIGHT, "Voronoi");
-	float minSiteDist = 0;
+	float minSiteDist = 0, radius = 0;
 	size_t maxPoints = 0, ch = 0;
 	int error = 0, input = 0;
 
@@ -455,15 +455,15 @@ int main()
 		maxPoints = input;
 
 		std::cout << "Please enter the minimum site distance between points(radius)." << std::endl;
-		std::cin >> input;
+		std::cin >> radius;
 
-		if (input < 0)
+		if (radius < 0)
 		{
 			std::cout << "Invalid input. Try again." << std::endl;
 			continue;
 		}
 
-		minSiteDist = input;
+		minSiteDist = radius;
 
 		std::cout << "Generating random points using Poisson disk sampling." << std::endl;
 		std::vector<Point> sites = generateSites(maxPoints, minSiteDist, &error);	
