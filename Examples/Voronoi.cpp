@@ -57,6 +57,13 @@ struct Point
 		setcolor(color);
 		circle((int)x, (int)y, 5);
 	}
+
+	void draw(int r, int g, int b) const
+	{
+		// putpixel((int)x, (int)y, YELLOW);
+		setcolor(COLOR(r, g, b));
+		circle((int)x, (int)y, 5);
+	}
 };
 
 struct Edge
@@ -407,6 +414,8 @@ void drawMesh(const std::vector<Triangle> &meshList)
 */
 void drawVoronoiPattern(const std::vector<Triangle>& mesh)
 {
+	setlinestyle(1, 0, 5);
+
 	for (size_t i = 0; i < mesh.size(); ++i)
 	{
 		Circle circumCircle = getCircumCircle(mesh[i]);
@@ -426,6 +435,106 @@ void drawVoronoiPattern(const std::vector<Triangle>& mesh)
 		}
 	}
 }
+
+
+
+/**
+ * Generating a procedural algorithm for voronoi pattern
+*/
+void drawVoronoiPattern(const std::vector<Point>& sites)
+{
+	// generating color list
+	int n = (int)std::ceil(std::pow(sites.size(), (1 / 3)));
+
+	int c = 0;
+
+	int* redLst = new int[sites.size()];
+	int* greenLst = new int[sites.size()];
+	int* blueLst = new int[sites.size()];
+
+	std::cout << "Value of n = " << n << std::endl;
+
+	std::cout << "Number of sites = " << sites.size() << std::endl;
+
+	for (int i = 0, j = 0, k = 0; i < n; i++)
+	{
+		for (j = 0; j < n; j++)
+		{
+			for (k = 0; k < n; k++)
+			{
+				redLst[c] = (i + 1) * (255 / n);
+				greenLst[c] = (j + 1) * (255 / n);
+				blueLst[c] = (k + 1) * (255 / n);
+
+				std::cout << " R = " << redLst[c] << " ; G = " << greenLst[c] << " ; B = " << blueLst[c] << std::endl;
+
+				c++;
+
+				if (c >= sites.size())
+				{
+					break;
+				}
+			}
+
+			if (c >= sites.size())
+			{
+				break;
+			}
+		}
+
+		if (c >= sites.size())
+		{
+			break;
+		}
+	}
+
+	std::cout << "Number of sites painted = " << c << std::endl;
+
+
+	// sample of points covering the whole area is generated
+	std::vector<Point> sampleList;
+
+	for (int j = 0, i = 0; i < WIDTH; i++)
+	{
+		for (j = 0; j < HEIGHT; j++)
+		{
+			sampleList.push_back(Point(i, j));
+		}
+	}
+
+
+	// assigning colors to points
+
+	for (int j = 0, i = 0; i < sampleList.size(); i++) {
+
+		double mindist = getEuclideanDist(sampleList[i], sites[0]);
+
+		int pos = 0;
+
+		for (j = 1; j < sites.size(); j++) {
+
+			double dist = getEuclideanDist(sampleList[i], sites[j]);
+
+			if (mindist > dist) { // checks if the new distance is smaller 
+
+				pos = j; // if the distance is smaller then the 
+				mindist = dist;
+			}
+		}
+
+		/*
+		std::cout << "New color assigned : " << siteColLst[pos] << "  Closest site : ";
+		sites[pos].display();
+		std::cout << "\n";
+		*/
+
+		sampleList[i].draw(redLst[pos], greenLst[pos], blueLst[pos]); // draw the point with the color of the closest site
+	}
+
+}
+
+
+
 
 // has basic input validation for negative values
 // does not consider other invalid input like characters
@@ -491,7 +600,15 @@ int main()
 			drawMesh(mesh);
 		}
 
-		std::cout << "Do you want to draw the generated Voronoi partition? (1 = Yes / 0 = No)" << std::endl;
+		std::cout << "Do you want to draw the generated Voronoi pattern with Floodfilled? (1 = Yes / 0 = No)" << std::endl;
+		std::cin >> ch;
+		if (ch)
+		{
+			std::cout << "Drawing the generated Voronoi partition." << std::endl;
+			drawVoronoiPattern(sites);
+		}
+
+		std::cout << "Do you want to draw the generated Voronoi pattern border? (1 = Yes / 0 = No)" << std::endl;
 		std::cin >> ch;
 		if (ch)
 		{
