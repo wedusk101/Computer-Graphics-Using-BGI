@@ -22,7 +22,6 @@
 struct MortonCodeData
 {
 	Point pixelCoordinate;
-	Point zOrderCoordinate;
 	uint32_t mortonCode;
 };
 
@@ -52,8 +51,7 @@ std::vector<MortonCodeData> getMortonCodes(uint32_t max)
 		{
 			MortonCodeData mc;
 			mc.pixelCoordinate = Point(x + (CELL_SIZE / 2), y + (CELL_SIZE / 2));
-			mc.zOrderCoordinate = Point(i, j);
-			mc.mortonCode = encodeMorton2((uint16_t)mc.zOrderCoordinate.x, (uint16_t)mc.zOrderCoordinate.y);
+			mc.mortonCode = encodeMorton2(i, j);
 			codeList.push_back(mc);
 		}
 	}
