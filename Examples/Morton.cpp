@@ -39,27 +39,24 @@ uint16_t leftInterleaveBy2(uint16_t x)
 uint32_t encodeMorton2(uint16_t x, uint16_t y)
 {
 	return (leftInterleaveBy2(y) << 1 |
-			leftInterleaveBy2(x));
+		leftInterleaveBy2(x));
 }
 
 std::vector<MortonCodeData> getMortonCodes(uint32_t max)
 {
 	std::vector<MortonCodeData> codeList;
 
-	for (uint32_t y = originY, j = 0; y <= max + 3 * CELL_SIZE; y += CELL_SIZE, ++j)
+	for (uint32_t y = originY, j = 0; y <= max; y += 100, ++j)
 	{
-		for (uint32_t x = originX, i = 0; x <= max + 3 * CELL_SIZE; x += CELL_SIZE, ++i)
+		for (uint32_t x = originX, i = 0; x <= max; x += 100, ++i)
 		{
 			MortonCodeData mc;
 			mc.pixelCoordinate = Point(x + (CELL_SIZE / 2), y + (CELL_SIZE / 2));
 			mc.zOrderCoordinate = Point(i, j);
+			mc.mortonCode = encodeMorton2((uint16_t)mc.zOrderCoordinate.x, (uint16_t)mc.zOrderCoordinate.y);
 			codeList.push_back(mc);
 		}
 	}
-
-	for (auto& mc : codeList)
-		mc.mortonCode = encodeMorton2((uint16_t)mc.zOrderCoordinate.x,
-			                          (uint16_t)mc.zOrderCoordinate.y);
 
 	return codeList;
 }
@@ -67,17 +64,18 @@ std::vector<MortonCodeData> getMortonCodes(uint32_t max)
 std::vector<Line> getMortonCurveSegments(std::vector<MortonCodeData>& codeList)
 {
 	std::sort(codeList.begin(), codeList.end(),
-		[&](MortonCodeData& a, MortonCodeData& b)
+		[](const MortonCodeData& a, const MortonCodeData& b)
 		{
 			return a.mortonCode < b.mortonCode;
 		});
 
+#ifndef NDEBUG
 	for (const auto& code : codeList)
 	{
-		std::cout << "Morton Code: "           << code.mortonCode         <<
-			         " Z-order Coordinates: (" << code.zOrderCoordinate.x << ", " << code.zOrderCoordinate.y << ")" <<
-			         " Pixel Coordinates: ("   << code.pixelCoordinate.x  << ", " << code.pixelCoordinate.y  << ")" <<std::endl;
+		std::cout << "Morton Code: " << code.mortonCode <<
+			" Pixel Coordinates: (" << code.pixelCoordinate.x << ", " << code.pixelCoordinate.y << ")" << std::endl;
 	}
+#endif // DEBUG mode
 
 	std::vector<Line> curveSegments;
 
@@ -103,12 +101,6 @@ void drawGrid(uint32_t size)
 	{
 		line(originX, y, originX + size, y);
 	}
-
-	// draw outer box only
-	// line(originX, originY, originX, originY + size);
-	// line(originX, originY, originX + size, originY);
-	// line(originX, originY + size, originX + size, originY + size);
-	// line(originX + size, originY, originX + size, originY + size);
 }
 
 void drawMortonCurve(const std::vector<Line>& segmentList)

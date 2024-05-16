@@ -95,9 +95,11 @@ struct Point
 		return Point(x * c, y * c);
 	}
 
-	Point operator=(const Point& p) const
+	Point& operator=(const Point& p)
 	{
-		return Point(x + p.x, y + p.y);
+		x = p.x;
+		y = p.y;
+		return *this;
 	}
 
 	Vec2 operator-(const Point& p) const
@@ -131,6 +133,13 @@ struct Line
 
 	Line(const Point& src_, const Point& dst_) : src(src_), dst(dst_) {}
 	Line(int x1, int y1, int x2, int y2) : src(Point(x1, y1)), dst(Point(x2, y2)) {}
+
+	Line& operator=(const Line& newLine)
+	{
+		src = newLine.src;
+		dst = newLine.dst;
+		return *this;
+	}
 
 	void draw() const
 	{
