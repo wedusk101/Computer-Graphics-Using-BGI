@@ -46,9 +46,9 @@ std::vector<MortonCodeData> getMortonCodes(uint32_t max)
 {
 	std::vector<MortonCodeData> codeList;
 
-	for (uint32_t y = originY, j = 0; y <= max; y += 100, ++j)
+	for (uint32_t y = originY, j = 0; y < originY + max; y += CELL_SIZE, ++j)
 	{
-		for (uint32_t x = originX, i = 0; x <= max; x += 100, ++i)
+		for (uint32_t x = originX, i = 0; x < originX + max; x += CELL_SIZE, ++i)
 		{
 			MortonCodeData mc;
 			mc.pixelCoordinate = Point(x + (CELL_SIZE / 2), y + (CELL_SIZE / 2));
