@@ -113,8 +113,7 @@ float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numS
 	}
 
 	std::cout << "Number of intersected sticks: " << crossedSticks << std::endl;
-
-	return (2 * numSticks * stickLength) / (float)(stripWidth * crossedSticks);
+	return numSticks / (float)crossedSticks;
 }
 
 int main()
@@ -135,8 +134,7 @@ int main()
 	std::cout << "Please enter the number of sticks to use for the simulation. Higher the number, more accurace the simulation." << std::endl;
 	std::cin >> numSticks;
 
-	std::cout << "Please enter the length of each stick." << std::endl;
-	std::cin >> stickLength;
+	stickLength = stripWidth / 2;
 
 	std::cout << "Render the sticks? This will affect the performance. (1 / 0)" << std::endl;
 	int val = 0;
