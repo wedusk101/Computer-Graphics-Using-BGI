@@ -70,20 +70,24 @@ std::vector<Line> generateSticks(uint32_t numSticks, uint32_t stickLength)
 	return sticks;
 }
 
-float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numSticks, uint32_t stickLength)
+float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numSticks, uint32_t stickLength, bool renderSticks)
 {
 	std::vector<Line> sticks = generateSticks(numSticks, stickLength);
 	uint32_t crossedSticks = 0;
 
-	for (uint32_t i = 0; i < sticks.size(); ++i)
+	if (renderSticks)
 	{
-#ifdef DRAW_STICKS
-		setcolor(YELLOW);
-		sticks[i].draw();
-#endif // DRAW_STICKS
+		for (uint32_t i = 0; i < sticks.size(); ++i)
+		{
+			setcolor(YELLOW);
+			sticks[i].draw();
+		}
+	}
 
-		/*		
-
+	for (uint32_t i = 0; i < sticks.size(); ++i)
+	{	
+		/*
+		
 		// binary search to reduce the number of strips we test against
 		auto lower = std::lower_bound(strips.begin(), strips.end(), sticks[i].src.x, [&](const Line& strip, int stickX)
 		{
@@ -94,17 +98,12 @@ float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numS
 
 		// skip the stick if it is out of bounds of our region of strips
 		if (idx == 0 || idx == strips.size() - 1)
-		{
-			std::cout << "Skipped test..." << std::endl;
 			continue;
-		}
-
-		std::cout << "Bounding strips: " << idx << " " << idx + 1 << std::endl;
 
 		if (sticks[i].intersects(strips[idx]) || sticks[i].intersects(strips[idx + 1]))
-			++crossedSticks;
+			++crossedSticks;	
 
-		*/		
+		*/
 
 		for (const auto& strip : strips)
 		{
@@ -139,12 +138,18 @@ int main()
 	std::cout << "Please enter the length of each stick." << std::endl;
 	std::cin >> stickLength;
 
+	std::cout << "Render the sticks? This will affect the performance. (1 / 0)" << std::endl;
+	int val = 0;
+	std::cin >> val;
+
+	bool renderSticks = (val != 0);
+
 	auto start = std::chrono::high_resolution_clock::now();
-	float approx_pi = calcPi(strips, stripWidth, numSticks, stickLength);
+	float approx_pi = calcPi(strips, stripWidth, numSticks, stickLength, renderSticks);
 	std::cout << "The approximate value of Pi is: " << approx_pi << std::endl;
 	auto stop = std::chrono::high_resolution_clock::now();
-	auto diff = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-	std::cout << "Time taken is " << diff.count() << " seconds." << std::endl;
+	auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+	std::cout << "Time taken is " << diff.count() << " milliseconds." << std::endl;
 
 	system("pause"); // windows only feature
 	closegraph();
