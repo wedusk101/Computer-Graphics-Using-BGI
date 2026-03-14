@@ -171,15 +171,15 @@ struct Line
 	}
 
 	// separating axis test
-	bool intersects(const Line& line)
+	bool intersects(const Line& line) const
 	{
-		// bool xOverlap = ((src.x <= line.src.x) && (line.src.x <= dst.x)) || ((src.x <= line.dst.x) && (line.dst.x <= dst.x));
-		// bool yOverLap = ((src.y <= line.src.y) && (line.src.y <= dst.y)) || ((src.y <= line.dst.y) && (line.dst.y <= dst.y));
+		auto ccw = [](const Point& A, const Point& B, const Point& C)
+		{
+			return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);
+		};
 
-		bool xOverlap = ((dst.x <= line.src.x) && (line.dst.x <= dst.x));
-		bool yOverLap = ((dst.y <= line.src.y) && (line.dst.y <= dst.y));
-
-		return xOverlap && yOverLap;
+		return (ccw(src, line.src, line.dst) != ccw(dst, line.src, line.dst)) &&
+			   (ccw(src, dst, line.src) != ccw(src, dst, line.dst));
 	}
 };
 

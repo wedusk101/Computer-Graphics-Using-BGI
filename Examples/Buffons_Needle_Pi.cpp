@@ -7,6 +7,7 @@
 */
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -18,6 +19,9 @@
 
 #define WIDTH 1000
 #define HEIGHT 1000
+#define PADDING 100
+
+#define DRAW_STICKS
 
 std::vector<Line> generateStrips(uint32_t stripWidth)
 {
@@ -52,7 +56,7 @@ std::vector<Line> generateSticks(uint32_t numSticks, uint32_t stickLength)
 		start.y = rndY(engine);
 
 		Point end;
-		end.x = (start.x + stickLength) >= WIDTH ? start.x - stickLength : start.x + stickLength;
+		end.x = start.x + stickLength;
 		end.y = start.y;
 
 		float angle = rndTheta(engine);
@@ -73,10 +77,12 @@ float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numS
 
 	for (uint32_t i = 0; i < sticks.size(); ++i)
 	{
+#ifdef DRAW_STICKS
 		setcolor(YELLOW);
 		sticks[i].draw();
+#endif // DRAW_STICKS
 
-		/*
+		/*		
 
 		// binary search to reduce the number of strips we test against
 		auto lower = std::lower_bound(strips.begin(), strips.end(), sticks[i].src.x, [&](const Line& strip, int stickX)
@@ -98,11 +104,11 @@ float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numS
 		if (sticks[i].intersects(strips[idx]) || sticks[i].intersects(strips[idx + 1]))
 			++crossedSticks;
 
-		*/
+		*/		
 
 		for (const auto& strip : strips)
 		{
-			if (sticks[i].intersects(strip))
+			if (strip.intersects(sticks[i]))
 				++crossedSticks;
 		}
 	}
@@ -118,7 +124,7 @@ int main()
 	
 	uint32_t stripWidth = 0;
 	uint32_t numSticks = 0;
-	uint32_t stickLength = 0.0f;
+	uint32_t stickLength = 0;
 
 	std::cout << "This program calculates Pi by simulating the Buffon's Needle problem." << std::endl;
 	std::cout << "Please enter the width of the parallel strips." << std::endl;
@@ -127,14 +133,18 @@ int main()
 	stripWidth = min(WIDTH, stripWidth);
 	std::vector<Line> strips = generateStrips(stripWidth);
 
-	std::cout << "Please enter the number of sticks to use for the simulation." << std::endl;
+	std::cout << "Please enter the number of sticks to use for the simulation. Higher the number, more accurace the simulation." << std::endl;
 	std::cin >> numSticks;
 
-	std::cout << "Please enter the width of each stick." << std::endl;
+	std::cout << "Please enter the length of each stick." << std::endl;
 	std::cin >> stickLength;
 
+	auto start = std::chrono::high_resolution_clock::now();
 	float approx_pi = calcPi(strips, stripWidth, numSticks, stickLength);
 	std::cout << "The approximate value of Pi is: " << approx_pi << std::endl;
+	auto stop = std::chrono::high_resolution_clock::now();
+	auto diff = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+	std::cout << "Time taken is " << diff.count() << " seconds." << std::endl;
 
 	system("pause"); // windows only feature
 	closegraph();
