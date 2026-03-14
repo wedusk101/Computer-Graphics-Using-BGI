@@ -1,5 +1,6 @@
 /*
-	The following program calculates the approximate value of Pi by simulating the Buffon's Needle Problem.
+	The following program calculates the approximate value of Pi by simulating the Buffon's Needle Problem. This is mostly a naive soltuion.
+	There is much room for optimization.
 
 	For more information please see:
 
@@ -131,7 +132,7 @@ int main()
 	stripWidth = min(WIDTH, stripWidth);
 	std::vector<Line> strips = generateStrips(stripWidth);
 
-	std::cout << "Please enter the number of sticks to use for the simulation. Higher the number, more accurace the simulation." << std::endl;
+	std::cout << "Please enter the number of sticks to use for the simulation. Higher the number, more accurate the simulation." << std::endl;
 	std::cin >> numSticks;
 
 	stickLength = stripWidth / 2;
