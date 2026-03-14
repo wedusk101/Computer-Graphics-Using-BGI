@@ -136,7 +136,7 @@ void drawBezierBernstein(Point *points, uint16_t steps)
 
 int main()
 {
-	initwindow(640, 480, "Bezier");
+	initwindow(640, 480, "Bezier (640 x 480)");
 	int ch = 0;
 	uint16_t stepSize = 0;
 	Curve curve;
