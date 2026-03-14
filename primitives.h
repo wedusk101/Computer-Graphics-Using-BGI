@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include "graphics.h"
+#include "primitives.h"
 
 struct Vec2
 {
@@ -126,6 +127,24 @@ inline Point getMidpoint(const Point& p1, const Point& p2)
 	return out;
 }
 
+// returns a point P(x,y) translated by tx and ty
+inline Point getTranslatedPoint(const Point& p, const int& tx, const int& ty)
+{
+	Point translatedPoint;
+	translatedPoint.x = p.x + tx;
+	translatedPoint.y = p.y + ty;
+	return translatedPoint;
+}
+
+// rotates a point about a given pivot by an angle of theta radians
+inline Point getRotatedPoint(const Point& p, const float& theta, const Point& pivot)
+{
+	Point rotatedPoint;
+	rotatedPoint.x = static_cast<int>(pivot.x + (p.x - pivot.x) * cos(theta) - (p.y - pivot.y) * sin(theta));
+	rotatedPoint.y = static_cast<int>(pivot.y + (p.x - pivot.x) * sin(theta) + (p.y - pivot.y) * cos(theta));
+	return rotatedPoint;
+}
+
 struct Line
 {
 	Point src;
@@ -144,6 +163,23 @@ struct Line
 	void draw() const
 	{
 		line(src.x, src.y, dst.x, dst.y);
+	}
+
+	void rotate(float theta)
+	{
+		src = getRotatedPoint(src, theta, dst);
+	}
+
+	// separating axis test
+	bool intersects(const Line& line)
+	{
+		// bool xOverlap = ((src.x <= line.src.x) && (line.src.x <= dst.x)) || ((src.x <= line.dst.x) && (line.dst.x <= dst.x));
+		// bool yOverLap = ((src.y <= line.src.y) && (line.src.y <= dst.y)) || ((src.y <= line.dst.y) && (line.dst.y <= dst.y));
+
+		bool xOverlap = ((dst.x <= line.src.x) && (line.dst.x <= dst.x));
+		bool yOverLap = ((dst.y <= line.src.y) && (line.dst.y <= dst.y));
+
+		return xOverlap && yOverLap;
 	}
 };
 

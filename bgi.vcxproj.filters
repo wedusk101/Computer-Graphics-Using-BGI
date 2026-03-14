@@ -96,8 +96,8 @@
     <ClCompile Include="Examples\Canopy.cpp">
       <Filter>Examples</Filter>
     </ClCompile>
-    <ClCompile Include="mathutils.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Examples\Buffons_Needle_Pi.cpp">
+      <Filter>Examples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
