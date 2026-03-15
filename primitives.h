@@ -170,7 +170,6 @@ struct Line
 		src = getRotatedPoint(src, theta, dst);
 	}
 
-	// separating axis test
 	bool intersects(const Line& line) const
 	{
 		// handle collinear segments
