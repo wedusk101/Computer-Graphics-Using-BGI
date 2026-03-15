@@ -173,6 +173,13 @@ struct Line
 	// separating axis test
 	bool intersects(const Line& line) const
 	{
+		// handle collinear segments
+		if ((src.x - dst.x) == (line.src.x - line.dst.x))
+		{
+			if (src.x == line.src.x || src.x == line.dst.x)
+				return true;
+		}
+
 		auto ccw = [](const Point& A, const Point& B, const Point& C)
 		{
 			return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x);

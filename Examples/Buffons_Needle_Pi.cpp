@@ -22,7 +22,8 @@
 #define HEIGHT 1000
 #define PADDING 100
 
-#define DRAW_STICKS
+// #define DEBUG_PRINT
+#define OPTIMIZED_TESTS
 
 std::vector<Line> generateStrips(uint32_t stripWidth)
 {
@@ -33,6 +34,9 @@ std::vector<Line> generateStrips(uint32_t stripWidth)
 	{
 		Line s(x, 0, x, HEIGHT);
 		strips.push_back(s);
+		char cstr[10];
+		sprintf(cstr, "%d", x / stripWidth);
+		outtextxy(x + 2, 0, cstr);
 		s.draw();
 	}
 
@@ -86,10 +90,9 @@ float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numS
 	}
 
 	for (uint32_t i = 0; i < sticks.size(); ++i)
-	{	
-		/*
-		
-		// binary search to reduce the number of strips we test against
+	{
+#ifdef OPTIMIZED_TESTS
+		// binary search to reduce the number of strips we test against - becomes O(k log n)
 		auto lower = std::lower_bound(strips.begin(), strips.end(), sticks[i].src.x, [&](const Line& strip, int stickX)
 		{
 			return (strip.src.x <= stickX);
@@ -97,20 +100,25 @@ float calcPi(const std::vector<Line>& strips, uint32_t stripWidth, uint32_t numS
 
 		auto idx = std::distance(strips.begin(), lower) - 1;
 
+#ifdef DEBUG_PRINT
+		std::cout << "Candidate strips: " << idx << " " << idx + 1 << std::endl;
+#endif // DEBUG_RPINT
+
 		// skip the stick if it is out of bounds of our region of strips
 		if (idx == 0 || idx == strips.size() - 1)
 			continue;
 
 		if (sticks[i].intersects(strips[idx]) || sticks[i].intersects(strips[idx + 1]))
-			++crossedSticks;	
-
-		*/
-
+			++crossedSticks;			
+#else
+		// naive O(kn) test where k is the number of sticks
+		// and n is the number of strips
 		for (const auto& strip : strips)
 		{
 			if (strip.intersects(sticks[i]))
 				++crossedSticks;
 		}
+#endif // OPTIMIZED_TESTS
 	}
 
 	std::cout << "Number of intersected sticks: " << crossedSticks << std::endl;
@@ -124,32 +132,46 @@ int main()
 	uint32_t stripWidth = 0;
 	uint32_t numSticks = 0;
 	uint32_t stickLength = 0;
+	int ch = 1;
 
-	std::cout << "This program calculates Pi by simulating the Buffon's Needle problem." << std::endl;
-	std::cout << "Please enter the width of the parallel strips." << std::endl;
-	std::cin >> stripWidth;
+	while (true)
+	{
+		cleardevice();
+		std::cout << "This program calculates Pi by simulating the Buffon's Needle problem." << std::endl;
+		std::cout << "Please enter the width of the parallel strips." << std::endl;
+		std::cin >> stripWidth;
 
-	stripWidth = min(WIDTH, stripWidth);
-	std::vector<Line> strips = generateStrips(stripWidth);
+		stripWidth = min(WIDTH, stripWidth);
+		std::vector<Line> strips = generateStrips(stripWidth);
 
-	std::cout << "Please enter the number of sticks to use for the simulation. Higher the number, more accurate the simulation." << std::endl;
-	std::cin >> numSticks;
+		std::cout << "Please enter the number of sticks to use for the simulation. Higher the number, more accurate the simulation." << std::endl;
+		std::cin >> numSticks;
 
-	stickLength = stripWidth / 2;
+		stickLength = stripWidth / 2;
 
-	std::cout << "Render the sticks? This will affect the performance. (1 / 0)" << std::endl;
-	int val = 0;
-	std::cin >> val;
+		std::cout << "Render the sticks? This will affect the performance. (1 / 0)" << std::endl;
+		std::cin >> ch;
 
-	bool renderSticks = (val != 0);
+		bool renderSticks = (ch != 0);
 
-	auto start = std::chrono::high_resolution_clock::now();
-	float approx_pi = calcPi(strips, stripWidth, numSticks, stickLength, renderSticks);
-	std::cout << "The approximate value of Pi is: " << approx_pi << std::endl;
-	auto stop = std::chrono::high_resolution_clock::now();
-	auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-	std::cout << "Time taken is " << diff.count() << " milliseconds." << std::endl;
+		auto start = std::chrono::high_resolution_clock::now();
+		float approx_pi = calcPi(strips, stripWidth, numSticks, stickLength, renderSticks);
+		std::cout << "The approximate value of Pi is: " << approx_pi << std::endl;
+		auto stop = std::chrono::high_resolution_clock::now();
+		auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+		std::cout << "Time taken is " << diff.count() << " milliseconds." << std::endl;
 
+		std::cout << "Would you like to try again? (1 / 0)" << std::endl;
+		std::cin >> ch;
+
+		if (ch == 0)
+			break;
+
+		cleardevice();
+		setcolor(WHITE);
+	}
+
+	std::cout << "Thank you." << std::endl;
 	system("pause"); // windows only feature
 	closegraph();
 	return 0;
