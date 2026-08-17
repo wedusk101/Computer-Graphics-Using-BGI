@@ -1,3 +1,4 @@
+// Cohen-Sutherland line clipping
 #include <iostream>
 #include "graphics.h"
 
